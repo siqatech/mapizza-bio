@@ -39,9 +39,14 @@ WhatsApp usa el formato `https://wa.me/51XXXXXXXXX` (número sin `+` ni espacios
 
 ## La foto del fondo
 
-En la franja inferior va una foto velada (36 % de opacidad, difuminada hacia
-arriba con una máscara de degradado y con un acercamiento muy lento). La pizza
-asoma de la oscuridad detrás de la firma sin robarle contraste a las tarjetas.
+La foto cubre toda la vista, pero una máscara de degradado solo la deja asomar
+en el tercio inferior: negro hasta el 70 %, un ascenso corto, y otra vez a la
+baja al llegar al pie. La pizza se intuye de fondo sin que la página deje de ser
+negra, que es donde las tarjetas recortan. Lleva un acercamiento de 58 s, corto
+a propósito para que el movimiento no se note como una animación.
+
+Medido sobre el fondo real, del 0 % al 80 % de la vista la luminosidad se queda
+entre 1 y 3 sobre 255; la foto solo sube a 9-10 en el último 10 %.
 
 **La foto actual es provisional**: es una del catálogo de Rappi, puesta solo
 para ver el efecto. Para cambiarla por la buena:
@@ -57,7 +62,9 @@ El desenfoque no es capricho: es lo que baja el archivo de 77 kB a 25 kB, y
 como la capa se ve velada y difuminada, la pérdida de nitidez no se aprecia.
 
 Funciona mejor una foto **horizontal y oscura**, con la pizza más o menos
-centrada. Después de cambiarla conviene mirar que el pie siga legible: los
+centrada. Tiene que ser fotografía propia del cliente: las previsualizaciones
+de bancos de imágenes llevan marca de agua y no están licenciadas, y una pizza
+de stock en la bio de una pizzería se nota. Después de cambiarla conviene mirar que el pie siga legible: los
 cuatro bloques de texto van hoy por encima de 4,5:1 de contraste.
 
 ## Logotipos
