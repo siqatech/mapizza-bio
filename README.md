@@ -10,6 +10,7 @@ Todo está señalizado con comentarios dentro del archivo:
 | Buscar en el archivo | Qué cambia |
 | --- | --- |
 | `ENLACES` | Las URLs de Rappi, PedidosYa, WhatsApp e Instagram |
+| `RELATO` | El texto de marca y la firma de Miguel Blanco |
 | `HORARIO` | El horario y la línea "33 cm · 6 slices · masa delgada" |
 | `RECLAMACIONES` | El enlace al libro de reclamaciones |
 

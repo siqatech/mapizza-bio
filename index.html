@@ -169,7 +169,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(66% 32% at 50% 80%, rgba(5, 4, 3, 0.62), transparent 76%);
+  background: radial-gradient(78% 40% at 50% 84%, rgba(5, 4, 3, 0.7), transparent 78%);
 }
 
 /* Grano de piedra. feTurbulence en línea: ~200 bytes por una textura
@@ -466,11 +466,59 @@ body {
   outline-offset: 4px;
 }
 
+/* ================================ relato ================================
+   Lo que se encuentra al bajar. Antes ahí solo había negro: en el móvil,
+   al plegarse la barra del navegador, quedaban cien píxeles de nada. */
+
+.relato {
+  margin-top: auto;
+  padding-top: clamp(2.75rem, 11vw, 4.5rem);
+  max-width: 23rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.relato .rotulo {
+  margin: 0;
+  font-size: clamp(0.5625rem, 2.4vw, 0.625rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--oro);
+}
+
+.relato .filete {
+  width: 2.5rem;
+  height: 1px;
+  margin: 1rem auto 1.25rem;
+  border: 0;
+  background: linear-gradient(to right, transparent, var(--oro), transparent);
+  opacity: 0.55;
+}
+
+.relato .cita {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(0.9375rem, 4vw, 1.0625rem);
+  line-height: 1.72;
+  /* Casi blanco: este texto cae sobre la parte más clara de la foto y
+     con el gris de apoyo se perdía. */
+  color: rgba(247, 243, 236, 0.9);
+  text-wrap: pretty;
+}
+
+.relato .firma {
+  margin: 1.25rem 0 0;
+  font-size: clamp(0.5625rem, 2.4vw, 0.625rem);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(247, 243, 236, 0.62);
+}
+
 /* ================================ horario ================================ */
 
 .pie {
-  margin-top: auto;
-  padding-top: clamp(2rem, 8vw, 3.25rem);
+  padding-top: clamp(2.25rem, 9vw, 3.5rem);
   text-align: center;
 }
 
@@ -569,8 +617,12 @@ body {
   .logo-pedidosya { width: 5.5rem; }
   .logo-icono     { width: 2.25rem; }
   .enlaces { gap: 0.625rem; }
-  .pie { padding-top: 1.25rem; }
+  .pie { padding-top: 1rem; }
   .marca { width: 4.25rem; }
+  .relato { padding-top: 1.5rem; max-width: 26rem; }
+  .relato .cita { font-size: 0.8125rem; line-height: 1.6; }
+  .relato .filete { margin: 0.6rem auto 0.75rem; }
+  .relato .firma { margin-top: 0.75rem; }
 }
 
 /* Teléfonos muy estrechos (iPhone SE): el cintillo se parte en dos. */
@@ -695,11 +747,26 @@ body {
 
   </ul>
 
+  <!-- ================================================================
+       RELATO — el texto de marca. Tres frases como mucho: aquí abajo se
+       lee de paso, no se estudia.
+       ================================================================ -->
+  <section class="relato entra" style="--d:560ms">
+    <p class="rotulo">Pizza de autor</p>
+    <hr class="filete" />
+    <p class="cita">
+      Masa ultra delgada, crocante y suave a la vez. Deja saborear cada
+      ingrediente por separado y todos juntos, y al llevar tan poca masa
+      se come ligera. No vas a encontrar otra igual.
+    </p>
+    <p class="firma">Miguel Blanco</p>
+  </section>
+
   <!-- ================================ pie ================================ -->
   <footer class="pie">
-    <i class="bmp marca entra" role="img" aria-label="MA PIZZA" style="--d:580ms"></i>
+    <i class="bmp marca entra" role="img" aria-label="MA PIZZA" style="--d:660ms"></i>
 
-    <div class="entra" style="--d:660ms">
+    <div class="entra" style="--d:730ms">
       <!-- HORARIO — cambiar aquí si varía la atención. -->
       <p class="datos">33 cm · 6 slices · masa delgada</p>
       <p class="horario">
