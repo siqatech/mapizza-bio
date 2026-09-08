@@ -54,6 +54,27 @@ python3 herramientas/construir.py --foto pizza.jpg      # cambia la foto del fon
 Los logotipos y la foto van incrustados en base64, así que el HTML que sale se
 sube solo, sin carpeta de assets.
 
+## Las dos vistas
+
+La página son dos pantallas, no una columna larga: primero dónde pedir, y al
+bajar quién la hace. Un señuelo ("Desliza" con una flecha) avisa de que hay
+segunda, y `scroll-snap-type: y proximity` ayuda a caer en ella —`proximity` y
+no `mandatory`, que secuestra el scroll y en un móvil se siente como si la
+página peleara. En apaisado no hay altura para dos pantallas, así que ahí el
+snap se apaga y vuelve a ser una columna.
+
+**La segunda vista tiene que medir una pantalla entera.** Si mide menos, el
+navegador no puede desplazarse lo suficiente para dejarla arriba del todo y al
+llegar al final acabas viendo la cola vacía de la primera: eso es lo que se leía
+como "abajo está todo negro". Y como mide una pantalla, su contenido la reparte
+—el hueco entre la voz de Miguel y la firma de la casa— en vez de amontonarse
+arriba y dejar un vacío.
+
+La segunda vista no entra al cargar sino cuando asoma, con un
+`IntersectionObserver`. Los estilos que la ocultan cuelgan de una clase `.js`
+que pone el propio guion, así que sin JavaScript el contenido se ve igual en
+lugar de quedarse invisible para siempre.
+
 ## El fondo de foto
 
 La foto cubre toda la vista, pero una máscara de degradado solo la deja asomar
