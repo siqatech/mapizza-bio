@@ -18,8 +18,8 @@ from PIL import Image, ImageEnhance, ImageFilter
 ANCHO = 820          # de sobra: la capa nunca se ve nítida
 DESENFOQUE = 1.7
 CALIDAD = 44
-BRILLO = 0.50        # oscurecer aquí comprime mejor que hacerlo en CSS
-COLOR = 0.74
+BRILLO = 0.44        # oscurecer aquí comprime mejor que hacerlo en CSS
+COLOR = 1.15         # subir saturación: desaturar sobre negro da gris plomo
 
 RAIZ = Path(__file__).resolve().parent.parent
 DESTINO = RAIZ / "index.html"

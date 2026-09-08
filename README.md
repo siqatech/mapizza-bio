@@ -45,8 +45,23 @@ baja al llegar al pie. La pizza se intuye de fondo sin que la página deje de se
 negra, que es donde las tarjetas recortan. Lleva un acercamiento de 58 s, corto
 a propósito para que el movimiento no se note como una animación.
 
-Medido sobre el fondo real, del 0 % al 80 % de la vista la luminosidad se queda
-entre 1 y 3 sobre 255; la foto solo sube a 9-10 en el último 10 %.
+Medido sobre el fondo real, el fondo lejos de las tarjetas está en `rgb(5,4,4)`
+y el interior de una tarjeta en `rgb(14,12,10)`: la tarjeta es **más clara** que
+el fondo, que es como debe leerse un panel. Cuando fue al revés, la página se
+veía plomiza.
+
+Tres cosas que hay que respetar al retocar el fondo, porque cada una produjo
+gris en su momento:
+
+1. **El grano va en `mix-blend-mode: soft-light`.** `feTurbulence` promedia un
+   gris medio, así que pintado sin mezcla al 9 % subía el negro de toda la
+   página a `rgb(11,11,11)`. Con soft-light el negro se queda negro y la
+   textura solo asoma donde ya hay luz.
+2. **Nada de realces en el centro.** Un `radial-gradient` amplio en mitad de la
+   pantalla cae justo detrás de la columna de tarjetas y las rodea de gris. Los
+   cálidos van pegados a las esquinas.
+3. **La foto se satura, no se desatura.** Bajar la saturación sobre negro da
+   barro gris; lo que se busca es oscura y cálida (brillo 0.44, color 1.15).
 
 **La foto actual es provisional**: es una del catálogo de Rappi, puesta solo
 para ver el efecto. Para cambiarla por la buena:
