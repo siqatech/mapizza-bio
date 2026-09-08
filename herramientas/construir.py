@@ -40,10 +40,12 @@ PLANTILLA = RAIZ / "herramientas" / "plantilla.html"
 # Como la capa se ve al 50 % y casi toda enmascarada, la nitidez no se echa
 # en falta. La saturación SUBE: desaturar sobre negro da gris plomo.
 ANCHO_FOTO = 820
-DESENFOQUE = 1.7
+DESENFOQUE = 0.6      # antes 1.7, que ahorraba bytes pero dejaba la pizza
+                      # en una mancha de color sin nada reconocible
 CALIDAD = 44
-BRILLO = 0.44
-COLOR = 1.15
+BRILLO = 0.78        # antes 0.44: entre esto, la opacidad y la máscara,
+                     # de la pizza no quedaba nada que mirar
+COLOR = 1.20
 
 # --- compresión del vídeo -------------------------------------------------
 ANCHO_VIDEO = 960          # se recorta con object-fit: cover, no hace falta más
@@ -131,12 +133,25 @@ def poster_del_video(origen: Path, destino: Path) -> None:
 
 
 ESTILO_VIDEO = """
-<style>
 /* El vídeo ya trae su propio movimiento: encima el acercamiento del CSS
    se notaría como un temblor. */
 .horno { animation: none; transform: scale(1.06); }
-</style>
 """
+
+# En vertical, 'cover' se queda con la franja central del 16:9 y tira el
+# resto. Si el plato no está centrado en el original, el móvil enseña
+# justo lo que no interesa: en el vídeo del giro, la mesa vacía.
+ESTILO_ENCUADRE = """
+.horno {
+  object-position: %s;
+  background-position: %s;
+}
+"""
+
+
+def envolver_estilo(*trozos: str) -> str:
+    cuerpo = "".join(t for t in trozos if t)
+    return f"\n<style>{cuerpo}</style>\n" if cuerpo.strip() else ""
 
 GUION_VIDEO = """
 /* El vídeo se engancha después y solo si toca. Hasta entonces —y para
@@ -160,7 +175,8 @@ GUION_VIDEO = """
 """
 
 
-def construir(salida: Path, foto: Path | None, video: Path | None) -> None:
+def construir(salida: Path, foto: Path | None, video: Path | None,
+              encuadre: str | None) -> None:
     html = PLANTILLA.read_text(encoding="utf8")
 
     if foto:
@@ -193,12 +209,15 @@ def construir(salida: Path, foto: Path | None, video: Path | None) -> None:
             'muted loop playsinline preload="none" '
             'disablepictureinpicture aria-hidden="true"></video>'
         )
-        piezas["{{ESTILO_EXTRA}}"] = ESTILO_VIDEO
+        piezas["{{ESTILO_EXTRA}}"] = envolver_estilo(
+            ESTILO_VIDEO,
+            ESTILO_ENCUADRE % (encuadre, encuadre) if encuadre else "")
         piezas["{{GUION_EXTRA}}"] = GUION_VIDEO
     else:
         piezas["{{FOTO_HORNO}}"] = uri_archivo(RECURSOS / "foto-horno.jpg")
         piezas["{{CAPA_FONDO}}"] = '<div class="horno"></div>'
-        piezas["{{ESTILO_EXTRA}}"] = ""
+        piezas["{{ESTILO_EXTRA}}"] = envolver_estilo(
+            ESTILO_ENCUADRE % (encuadre, encuadre) if encuadre else "")
         piezas["{{GUION_EXTRA}}"] = ""
 
     for hueco, valor in piezas.items():
@@ -218,6 +237,11 @@ def main() -> int:
     p.add_argument("--salida", default="index.html", help="archivo HTML a generar")
     p.add_argument("--foto", help="foto nueva para el fondo (se trata y se guarda)")
     p.add_argument("--video", help="vídeo para el fondo (se comprime aparte)")
+    p.add_argument("--encuadre",
+                   help='qué parte del fondo se ve en vertical, en formato '
+                        'object-position (por ejemplo "30%% 52%%"). El móvil '
+                        'recorta la franja central del 16:9, así que si el '
+                        'plato no está centrado hay que decírselo.')
     a = p.parse_args()
 
     for etiqueta, valor in (("--foto", a.foto), ("--video", a.video)):
@@ -226,7 +250,8 @@ def main() -> int:
 
     construir(RAIZ / a.salida,
               Path(a.foto) if a.foto else None,
-              Path(a.video) if a.video else None)
+              Path(a.video) if a.video else None,
+              a.encuadre)
     return 0
 
 

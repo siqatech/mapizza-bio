@@ -47,8 +47,8 @@ recursos de `herramientas/recursos/`.
 pip install pillow                      # siempre
 sudo apt install ffmpeg                 # solo para las versiones con vídeo
 
-python3 herramientas/construir.py                       # -> index.html
-python3 herramientas/construir.py --foto pizza.jpg      # cambia la foto del fondo
+python3 herramientas/construir.py                                    # -> index.html
+python3 herramientas/construir.py --foto pizza.jpg --encuadre "30% 52%"
 ```
 
 Los logotipos y la foto van incrustados en base64, así que el HTML que sale se
@@ -99,10 +99,17 @@ gris en su momento:
    pantalla cae justo detrás de la columna de tarjetas y las rodea de gris. Los
    cálidos van pegados a las esquinas.
 3. **La foto se satura, no se desatura.** Bajar la saturación sobre negro da
-   barro gris; lo que se busca es oscura y cálida (brillo 0.44, color 1.15).
+   barro gris; lo que se busca es oscura y cálida (brillo 0.78, color 1.20).
+4. **El texto se defiende con `text-shadow`, no apagando la foto.** Apagarla
+   era lo que dejaba la pizza en un 20 % y sin nada que mirar. Con sombra en el
+   texto, la pizza se ve *y* se lee.
+5. **`--encuadre` no es un adorno.** En vertical, `cover` se queda con la franja
+   central del 16:9 y tira el resto: si el plato no está centrado en el
+   original, el móvil enseña justo lo que no interesa. En el vídeo del giro, sin
+   encuadre, salía la mesa vacía y la pizza quedaba fuera de cuadro.
 
-**La foto actual es provisional**: es una del catálogo de Rappi, puesta solo
-para ver el efecto. Funciona mejor una foto **horizontal y oscura**, con la
+La foto de la versión 1 es un fotograma del vídeo del giro, elegido midiendo
+cuál dejaba más pizza dentro del recorte del móvil. Funciona mejor una foto **horizontal y oscura**, con la
 pizza más o menos centrada, y tiene que ser fotografía propia: las
 previsualizaciones de bancos de imágenes llevan marca de agua y no están
 licenciadas, y una pizza de stock en la bio de una pizzería se nota. Después de
@@ -117,8 +124,8 @@ el HTML busca el vídeo por nombre, en la misma carpeta.
 Para rehacerlas desde otros originales:
 
 ```bash
-python3 herramientas/construir.py --video ruta/pizzazoom.mov --salida index2.html
-python3 herramientas/construir.py --video ruta/pizagira.mp4  --salida index3.html
+python3 herramientas/construir.py --video ruta/pizzazoom.mov --salida index2.html --encuadre "42% 58%"
+python3 herramientas/construir.py --video ruta/pizagira.mp4  --salida index3.html --encuadre "30% 52%"
 ```
 
 **El vídeo no va incrustado**: en base64 el navegador tendría que descargarlo

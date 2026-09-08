@@ -144,25 +144,25 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: 50% 64%;
-  opacity: 0.5;
+  opacity: 0.88;
   -webkit-mask-image: linear-gradient(
       to bottom,
       transparent      0%,
-      transparent     56%,
-      rgba(0,0,0,0.14) 70%,
-      rgba(0,0,0,0.62) 82%,
-      rgba(0,0,0,0.90) 90%,
-      rgba(0,0,0,0.78) 97%,
-      rgba(0,0,0,0.66) 100%);
+      transparent     46%,
+      rgba(0,0,0,0.16) 60%,
+      rgba(0,0,0,0.66) 74%,
+      rgba(0,0,0,0.96) 86%,
+      rgba(0,0,0,1)    94%,
+      rgba(0,0,0,0.92) 100%);
           mask-image: linear-gradient(
       to bottom,
       transparent      0%,
-      transparent     56%,
-      rgba(0,0,0,0.14) 70%,
-      rgba(0,0,0,0.62) 82%,
-      rgba(0,0,0,0.90) 90%,
-      rgba(0,0,0,0.78) 97%,
-      rgba(0,0,0,0.66) 100%);
+      transparent     46%,
+      rgba(0,0,0,0.16) 60%,
+      rgba(0,0,0,0.66) 74%,
+      rgba(0,0,0,0.96) 86%,
+      rgba(0,0,0,1)    94%,
+      rgba(0,0,0,0.92) 100%);
   animation: acercar 58s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -180,7 +180,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(78% 40% at 50% 84%, rgba(5, 4, 3, 0.7), transparent 78%);
+  background: linear-gradient(to top, rgba(5, 4, 3, 0.55), rgba(5, 4, 3, 0.2) 26%, transparent 46%);
 }
 
 /* Grano de piedra. feTurbulence en línea: ~200 bytes por una textura
@@ -551,6 +551,7 @@ body {
 
 .relato .rotulo {
   margin: 0;
+  text-shadow: 0 1px 10px rgba(5, 4, 3, 0.9);
   font-size: clamp(0.5625rem, 2.4vw, 0.625rem);
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -568,6 +569,7 @@ body {
 
 .relato .cita {
   margin: 0;
+  text-shadow: 0 1px 12px rgba(5, 4, 3, 0.9), 0 1px 3px rgba(5, 4, 3, 0.8);
   font-family: var(--serif);
   font-style: italic;
   font-size: clamp(0.9375rem, 4vw, 1.0625rem);
@@ -580,6 +582,7 @@ body {
 
 .relato .firma {
   margin: 1.25rem 0 0;
+  text-shadow: 0 1px 10px rgba(5, 4, 3, 0.9);
   font-size: clamp(0.5625rem, 2.4vw, 0.625rem);
   letter-spacing: 0.26em;
   text-transform: uppercase;
@@ -589,6 +592,9 @@ body {
 /* ================================ horario ================================ */
 
 .pie {
+  /* La sombra hace el trabajo que antes hacía apagar la foto: el texto se
+     lee sobre la pizza en vez de obligarla a desaparecer. */
+  text-shadow: 0 1px 12px rgba(5, 4, 3, 0.92), 0 1px 3px rgba(5, 4, 3, 0.8);
   /* Este hueco no sobra: es lo que separa la voz de Miguel de la firma
      de la casa, y lo que hace que la vista se llene sola. */
   padding-top: clamp(3.5rem, 15vw, 6rem);
@@ -600,7 +606,7 @@ body {
   aspect-ratio: 274 / 404;
   margin-inline: auto;
   background-image: var(--ma-firma);
-  filter: drop-shadow(0 2px 30px rgba(232, 184, 102, 0.22));
+  filter: drop-shadow(0 2px 14px rgba(5, 4, 3, 0.9));
 }
 
 .datos {
