@@ -129,10 +129,16 @@ body {
   position: absolute;
   inset: 0;
   z-index: 1;
+  /* En la versión con vídeo esto es el póster: se ve desde el primer
+     fotograma y se queda si el vídeo no llega a cargar. */
   background-image: var(--foto-horno);
   background-size: cover;
   background-position: 50% 64%;
   background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 64%;
   opacity: 0.5;
   -webkit-mask-image: linear-gradient(
       to bottom,

@@ -38,13 +38,29 @@ WhatsApp usa el formato `https://wa.me/51XXXXXXXXX` (número sin `+` ni espacios
   para móvil apaisado. Objetivos táctiles de 44 px o más.
 - **`prefers-reduced-motion`**: apaga brasas, halos y entradas.
 
-## La foto del fondo
+## Cómo se construye
+
+`index.html` no se edita a mano: sale de `herramientas/plantilla.html` más los
+recursos de `herramientas/recursos/`.
+
+```bash
+pip install pillow                      # siempre
+sudo apt install ffmpeg                 # solo para las versiones con vídeo
+
+python3 herramientas/construir.py                       # -> index.html
+python3 herramientas/construir.py --foto pizza.jpg      # cambia la foto del fondo
+```
+
+Los logotipos y la foto van incrustados en base64, así que el HTML que sale se
+sube solo, sin carpeta de assets.
+
+## El fondo de foto
 
 La foto cubre toda la vista, pero una máscara de degradado solo la deja asomar
 en el tercio inferior: negro hasta el 70 %, un ascenso corto, y otra vez a la
 baja al llegar al pie. La pizza se intuye de fondo sin que la página deje de ser
 negra, que es donde las tarjetas recortan. Lleva un acercamiento de 58 s, corto
-a propósito para que el movimiento no se note como una animación.
+a propósito para que no se lea como una animación.
 
 Medido sobre el fondo real, el fondo lejos de las tarjetas está en `rgb(5,4,4)`
 y el interior de una tarjeta en `rgb(14,12,10)`: la tarjeta es **más clara** que
@@ -65,25 +81,35 @@ gris en su momento:
    barro gris; lo que se busca es oscura y cálida (brillo 0.44, color 1.15).
 
 **La foto actual es provisional**: es una del catálogo de Rappi, puesta solo
-para ver el efecto. Para cambiarla por la buena:
+para ver el efecto. Funciona mejor una foto **horizontal y oscura**, con la
+pizza más o menos centrada, y tiene que ser fotografía propia: las
+previsualizaciones de bancos de imágenes llevan marca de agua y no están
+licenciadas, y una pizza de stock en la bio de una pizzería se nota. Después de
+cambiarla conviene mirar que el pie siga legible.
+
+## Las versiones con vídeo
 
 ```bash
-pip install pillow
-python3 herramientas/incrustar-foto.py ruta/de/la/foto.jpg
+python3 herramientas/construir.py --video herramientas/pizzazoom.mov --salida index2.html
+python3 herramientas/construir.py --video herramientas/pizagira.mp4  --salida index3.html
 ```
 
-El script recorta una banda ancha, la desenfoca un poco, la oscurece, la
-comprime y la reincrusta en la variable CSS `--foto-horno` de `index.html`.
-El desenfoque no es capricho: es lo que baja el archivo de 77 kB a 25 kB, y
-como la capa se ve velada y difuminada, la pérdida de nitidez no se aprecia.
+Cada una deja dos archivos que se suben juntos: `index2.html` y `fondo2.mp4`
+(igual con el 3). **El vídeo no va incrustado**: en base64 el navegador tendría
+que descargarlo entero antes de pintar nada. Comprimido queda en torno a 600 kB
+—12 s, mudo, 960 px de ancho, `faststart`— y el HTML en unos 85 kB.
 
-Funciona mejor una foto **horizontal y oscura**, con la pizza más o menos
-centrada. Tiene que ser fotografía propia del cliente: las previsualizaciones
-de bancos de imágenes llevan marca de agua y no están licenciadas, y una pizza
-de stock en la bio de una pizzería se nota. Después de cambiarla conviene mirar que el pie siga legible: los
-cuatro bloques de texto van hoy por encima de 4,5:1 de contraste.
+La página arranca mostrando el póster, que es un fotograma del propio vídeo
+tratado igual que la foto: el primer pintado es idéntico al de la versión 1.
+Solo después el guion engancha el vídeo, y **no lo engancha nunca** si el
+navegador pide movimiento reducido o si la conexión declara ahorro de datos o
+2G. Si la reproducción falla, se queda el póster. Nadie abre una página de bio
+para gastarse los datos en un fondo.
 
-## Logotipos
+En la versión con vídeo se desactiva el acercamiento del CSS: el vídeo ya trae
+su propio movimiento y encima se notaría como un temblor.
+
+## Logotipos## Logotipos
 
 Los mapas de bits van incrustados en base64 y declarados **una sola vez** como
 variables CSS (`--ma-marca`, `--ma-firma`, `--rappi`, `--pedidosya`); repetirlos
