@@ -60,8 +60,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* En iOS el rebote deja ver el blanco del navegador tras el fondo fijo. */
-  background: var(--negro);
+  /* El rebote de iOS asoma por detrás de la capa fija: este tono es el
+     mismo con el que arranca .fondo, así el tirón no destella en negro. */
+  background: #0b0806;
 }
 
 body {
@@ -86,13 +87,21 @@ body {
 .fondo {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  /* z-index 0, nunca negativo: una capa negativa se pinta ANTES que el
+     fondo de los elementos en flujo, así que el negro opaco de body la
+     tapaba entera. El contenido pasa por delante con .envoltura{z-index:1}. */
+  z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(58% 34% at 80% 4%,  rgba(232, 184, 102, 0.26), transparent 64%),
-    radial-gradient(54% 32% at 8%  98%, rgba(214, 118, 40,  0.24), transparent 66%),
-    radial-gradient(70% 46% at 50% 46%, rgba(46, 32, 18,    0.60), transparent 76%),
-    var(--negro);
+    /* brasa del horno, arriba a la derecha */
+    radial-gradient(52% 30% at 92% -2%,  rgba(255, 176, 74,  0.46), transparent 64%),
+    radial-gradient(30% 18% at 96% -6%,  rgba(255, 220, 160, 0.34), transparent 62%),
+    /* rescoldo bajo, detrás de la firma */
+    radial-gradient(70% 28% at 50% 106%, rgba(226, 128, 40,  0.36), transparent 70%),
+    radial-gradient(40% 22% at 2%  98%,  rgba(198, 96,  32,  0.32), transparent 68%),
+    /* piedra templada: evita que el negro quede plano en el centro */
+    radial-gradient(86% 52% at 50% 46%,  rgba(58, 40, 24,    0.42), transparent 76%),
+    linear-gradient(160deg, #0d0a07 0%, #060504 45%, #0b0806 100%);
 }
 
 /* Dos halos cálidos que se cruzan muy despacio: el negro deja de ser
@@ -102,8 +111,8 @@ body {
   position: absolute;
   inset: -25%;
   background:
-    radial-gradient(26% 20% at 22% 18%, rgba(232, 184, 102, 0.20), transparent 70%),
-    radial-gradient(28% 22% at 82% 74%, rgba(198, 104, 38,  0.18), transparent 70%);
+    radial-gradient(24% 18% at 16% 12%, rgba(255, 190, 96,  0.20), transparent 72%),
+    radial-gradient(26% 20% at 86% 80%, rgba(214, 112, 40,  0.22), transparent 72%);
   animation: vagar 34s ease-in-out infinite alternate;
 }
 
@@ -113,9 +122,8 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.055;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23r)'/%3E%3C/svg%3E");
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23r)'/%3E%3C/svg%3E");
 }
 
 @keyframes vagar {
@@ -125,7 +133,7 @@ body {
 
 /* Brasas. Puntos con radial-gradient en vez de filter:blur — el blur
    sobre elementos animados hunde el frame rate en gama media. */
-.brasas { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.brasas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 
 .brasa {
   position: absolute;
@@ -133,7 +141,8 @@ body {
   width: var(--t, 4px);
   height: var(--t, 4px);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 226, 168, 0.95), rgba(232, 184, 102, 0.35) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 236, 190, 1), rgba(255, 176, 74, 0.55) 40%, transparent 72%);
+  box-shadow: 0 0 10px rgba(255, 176, 74, 0.55);
   opacity: 0;
   animation: subir var(--dur, 17s) linear infinite;
   animation-delay: var(--esp, 0s);
@@ -142,8 +151,8 @@ body {
 
 @keyframes subir {
   0%   { opacity: 0;   transform: translate3d(0, 0, 0) scale(0.7); }
-  12%  { opacity: 0.9; }
-  70%  { opacity: 0.55; }
+  12%  { opacity: 1; }
+  70%  { opacity: 0.7; }
   100% { opacity: 0;   transform: translate3d(var(--dx, 14px), -112vh, 0) scale(1.15); }
 }
 
@@ -151,6 +160,7 @@ body {
 
 .envoltura {
   position: relative;
+  z-index: 1;          /* por delante del fondo y de las brasas */
   width: 100%;
   max-width: 30rem;
   margin-inline: auto;

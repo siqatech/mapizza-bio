@@ -20,9 +20,12 @@ WhatsApp usa el formato `https://wa.me/51XXXXXXXXX` (número sin `+` ni espacios
 
 ## Cómo está hecho
 
-- **Fondo**: generado por CSS y un `feTurbulence` en línea (piedra, halos
-  cálidos y brasas que suben). Sin fotos: pesa unos bytes y no hay que
-  recortarlo para cada pantalla.
+- **Fondo**: generado por CSS y un `feTurbulence` en línea (piedra, luz cálida
+  desde la esquina superior derecha, rescoldo al pie y brasas que suben). Sin
+  fotos: pesa unos bytes y no hay que recortarlo para cada pantalla.
+  Las capas van en `z-index: 0` y el contenido en `1`; **nunca en negativo**,
+  porque una capa de z-index negativo se pinta antes que el fondo de los
+  elementos en flujo y el negro de `body` la taparía entera.
 - **Borde dorado**: un `conic-gradient` recortado al `border-box` cuyo ángulo
   gira con `@property`, con una fase distinta por tarjeta. Donde el navegador
   no soporte `@property` el borde se queda quieto, que se ve bien igual.
