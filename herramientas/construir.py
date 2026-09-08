@@ -47,7 +47,8 @@ COLOR = 1.15
 
 # --- compresión del vídeo -------------------------------------------------
 ANCHO_VIDEO = 960          # se recorta con object-fit: cover, no hace falta más
-SEGUNDOS = 12              # un bucle corto pesa menos y se nota menos que se repite
+DESDE = 1                  # el primer segundo suele venir con el encuadre aún fijo
+SEGUNDOS = 7               # se duplica al montar la ida y vuelta: salen 14 de bucle
 CRF = 30                   # va al 50 % de opacidad y difuminado: no pide calidad
 
 
@@ -79,13 +80,34 @@ def exigir_ffmpeg() -> None:
 
 
 def comprimir_video(origen: Path, destino: Path) -> None:
-    """Deja un mp4 mudo, corto y ligero, apto para reproducir en bucle."""
+    """Deja un mp4 mudo, corto y ligero, que enlaza consigo mismo.
+
+    El trozo se monta con su propio reverso detrás. Un corte seco vuelve al
+    primer fotograma de golpe y ese salto se ve cada pocos segundos; yendo y
+    volviendo, el final ya ES el principio y el bucle no tiene costura. En un
+    fondo al 50 % y difuminado, que el movimiento se deshaga no se lee como
+    marcha atrás, sino como un vaivén.
+    """
+    # Mismo tratamiento que la foto, y en el mismo orden: desenfocar,
+    # multiplicar el brillo y subir la saturación. Si el vídeo no coincidiera
+    # con su póster, al arrancar se vería un salto de luz. lutrgb multiplica,
+    # que es lo que hace Pillow; eq=brightness sumaría, que es otra cosa.
+    tratado = (
+        f"scale={ANCHO_VIDEO}:-2:flags=lanczos,"
+        f"gblur=sigma={DESENFOQUE},"
+        "format=rgb24,"
+        f"lutrgb=r='val*{BRILLO}':g='val*{BRILLO}':b='val*{BRILLO}',"
+        "format=yuv420p,"
+        f"eq=saturation={COLOR},"
+        "setsar=1"
+    )
     subprocess.run(
         ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-i", str(origen),
-         "-t", str(SEGUNDOS),
+         "-ss", str(DESDE), "-t", str(SEGUNDOS), "-i", str(origen),
          "-an",                                    # sin audio: no se oye nunca
-         "-vf", f"scale={ANCHO_VIDEO}:-2:flags=lanczos,eq=brightness=-0.16:saturation=1.1",
+         "-filter_complex",
+         f"[0:v]{tratado},split[ida][vuelta];[vuelta]reverse[atras];[ida][atras]concat=n=2:v=1[v]",
+         "-map", "[v]",
          "-c:v", "libx264", "-profile:v", "main", "-preset", "slow",
          "-crf", str(CRF), "-pix_fmt", "yuv420p",
          "-movflags", "+faststart",                # empieza a pintar sin el archivo entero
@@ -95,9 +117,15 @@ def comprimir_video(origen: Path, destino: Path) -> None:
 
 
 def poster_del_video(origen: Path, destino: Path) -> None:
+    """Saca el fotograma del vídeo ORIGINAL, no del comprimido.
+
+    Del comprimido saldría ya oscurecido y tratar_foto lo oscurecería otra
+    vez, así que el póster quedaba mucho más oscuro que el vídeo y al
+    arrancar la reproducción la página pegaba un salto de brillo.
+    """
     subprocess.run(
         ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-i", str(origen), "-ss", "1", "-frames:v", "1", str(destino)],
+         "-ss", str(DESDE), "-i", str(origen), "-frames:v", "1", str(destino)],
         check=True,
     )
 
@@ -156,7 +184,7 @@ def construir(salida: Path, foto: Path | None, video: Path | None) -> None:
         print(f"  vídeo: {destino_video.stat().st_size // 1024} kB")
 
         temp = RAIZ / "herramientas" / "_poster.jpg"
-        poster_del_video(destino_video, temp)
+        poster_del_video(video, temp)
         piezas["{{FOTO_HORNO}}"] = uri(tratar_foto(temp), "image/jpeg")
         temp.unlink()
 

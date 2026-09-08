@@ -110,15 +110,32 @@ cambiarla conviene mirar que el pie siga legible.
 
 ## Las versiones con vídeo
 
+Ya están generadas: **`index2.html` + `fondo2.mp4`** (el zoom sobre la masa) e
+**`index3.html` + `fondo3.mp4`** (la pizza girando). Cada pareja se sube junta:
+el HTML busca el vídeo por nombre, en la misma carpeta.
+
+Para rehacerlas desde otros originales:
+
 ```bash
-python3 herramientas/construir.py --video herramientas/pizzazoom.mov --salida index2.html
-python3 herramientas/construir.py --video herramientas/pizagira.mp4  --salida index3.html
+python3 herramientas/construir.py --video ruta/pizzazoom.mov --salida index2.html
+python3 herramientas/construir.py --video ruta/pizagira.mp4  --salida index3.html
 ```
 
-Cada una deja dos archivos que se suben juntos: `index2.html` y `fondo2.mp4`
-(igual con el 3). **El vídeo no va incrustado**: en base64 el navegador tendría
-que descargarlo entero antes de pintar nada. Comprimido queda en torno a 600 kB
-—12 s, mudo, 960 px de ancho, `faststart`— y el HTML en unos 85 kB.
+**El vídeo no va incrustado**: en base64 el navegador tendría que descargarlo
+entero antes de pintar nada. Comprimido queda en 350 kB y 173 kB —14 s, mudo,
+960 px, `faststart`— y cada HTML en 91 kB.
+
+El bucle se monta con el trozo y su propio reverso detrás. Un corte seco vuelve
+al primer fotograma de golpe y ese salto se ve cada pocos segundos; yendo y
+volviendo, el final ya *es* el principio. Comprobado: la diferencia media entre
+el primer y el último fotograma es de 3,2 y 1,3 sobre 255.
+
+El vídeo lleva **el mismo tratamiento que la foto y en el mismo orden**
+—desenfoque, multiplicación del brillo, saturación—, porque si no coincidiera
+con su póster se vería un salto de luz al arrancar. `lutrgb` multiplica, que es
+lo que hace Pillow; `eq=brightness` sumaría, que es otra cosa. Comprobado: el
+RGB medio del póster y el del primer fotograma no se separan más de 6 sobre
+255.
 
 La página arranca mostrando el póster, que es un fotograma del propio vídeo
 tratado igual que la foto: el primer pintado es idéntico al de la versión 1.
