@@ -37,6 +37,29 @@ WhatsApp usa el formato `https://wa.me/51XXXXXXXXX` (número sin `+` ni espacios
   para móvil apaisado. Objetivos táctiles de 44 px o más.
 - **`prefers-reduced-motion`**: apaga brasas, halos y entradas.
 
+## La foto del fondo
+
+En la franja inferior va una foto velada (36 % de opacidad, difuminada hacia
+arriba con una máscara de degradado y con un acercamiento muy lento). La pizza
+asoma de la oscuridad detrás de la firma sin robarle contraste a las tarjetas.
+
+**La foto actual es provisional**: es una del catálogo de Rappi, puesta solo
+para ver el efecto. Para cambiarla por la buena:
+
+```bash
+pip install pillow
+python3 herramientas/incrustar-foto.py ruta/de/la/foto.jpg
+```
+
+El script recorta una banda ancha, la desenfoca un poco, la oscurece, la
+comprime y la reincrusta en la variable CSS `--foto-horno` de `index.html`.
+El desenfoque no es capricho: es lo que baja el archivo de 77 kB a 25 kB, y
+como la capa se ve velada y difuminada, la pérdida de nitidez no se aprecia.
+
+Funciona mejor una foto **horizontal y oscura**, con la pizza más o menos
+centrada. Después de cambiarla conviene mirar que el pie siga legible: los
+cuatro bloques de texto van hoy por encima de 4,5:1 de contraste.
+
 ## Logotipos
 
 Los mapas de bits van incrustados en base64 y declarados **una sola vez** como
