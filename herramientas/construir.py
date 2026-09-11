@@ -29,7 +29,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
 RAIZ = Path(__file__).resolve().parent.parent
 RECURSOS = RAIZ / "herramientas" / "recursos"
@@ -46,6 +46,15 @@ CALIDAD = 44
 BRILLO = 0.78        # antes 0.44: entre esto, la opacidad y la máscara,
                      # de la pizza no quedaba nada que mirar
 COLOR = 1.20
+
+# --- el retrato de la familia ---
+# Va en la segunda vista, tras el fundido de la foto. Se vira a cálido
+# porque el original es en blanco y negro y un gris puro, en una página
+# de negros y dorados, se sale de la paleta.
+ANCHO_RETRATO = 780
+CALIDAD_RETRATO = 72
+VIRADO_SOMBRAS = (26, 20, 14)
+VIRADO_LUCES = (250, 242, 226)
 
 # --- compresión del vídeo -------------------------------------------------
 ANCHO_VIDEO = 960          # se recorta con object-fit: cover, no hace falta más
@@ -64,6 +73,20 @@ def tratar_foto(origen: Path) -> bytes:
     im = ImageEnhance.Color(im).enhance(COLOR)
     buf = io.BytesIO()
     im.save(buf, "JPEG", quality=CALIDAD, optimize=True, progressive=True)
+    return buf.getvalue()
+
+
+def tratar_retrato(origen: Path) -> bytes:
+    """Vira el retrato a cálido y lo deja a un tamaño razonable."""
+    im = Image.open(origen).convert("RGB")
+    im = ImageOps.exif_transpose(im)
+    if im.width > ANCHO_RETRATO:
+        im = im.resize((ANCHO_RETRATO, round(im.height * ANCHO_RETRATO / im.width)),
+                       Image.LANCZOS)
+    im = ImageOps.colorize(ImageOps.grayscale(im), VIRADO_SOMBRAS, VIRADO_LUCES)
+    im = ImageEnhance.Brightness(im).enhance(0.92)
+    buf = io.BytesIO()
+    im.save(buf, "JPEG", quality=CALIDAD_RETRATO, optimize=True, progressive=True)
     return buf.getvalue()
 
 
@@ -175,8 +198,14 @@ GUION_VIDEO = """
 """
 
 
+SIN_RETRATO = """
+/* Sin retrato, la historia se cuenta sobre el negro y ya. */
+.retrato { display: none; }
+"""
+
+
 def construir(salida: Path, foto: Path | None, video: Path | None,
-              encuadre: str | None) -> None:
+              encuadre: str | None, retrato: Path | None) -> None:
     html = PLANTILLA.read_text(encoding="utf8")
 
     if foto:
@@ -184,7 +213,15 @@ def construir(salida: Path, foto: Path | None, video: Path | None,
         (RECURSOS / "foto-horno.jpg").write_bytes(datos)
         print(f"  foto tratada: {len(datos) // 1024} kB")
 
+    if retrato:
+        datos = tratar_retrato(retrato)
+        (RECURSOS / "familia.jpg").write_bytes(datos)
+        print(f"  retrato tratado: {len(datos) // 1024} kB")
+
+    hay_retrato = (RECURSOS / "familia.jpg").is_file()
+
     piezas = {
+        "{{RETRATO}}": (uri_archivo(RECURSOS / "familia.jpg") if hay_retrato else "none"),
         "{{MA_MARK}}": uri_archivo(RECURSOS / "ma-marca.png"),
         "{{MA_LOCKUP}}": uri_archivo(RECURSOS / "ma-firma.png"),
         "{{RAPPI}}": uri_archivo(RECURSOS / "rappi.png"),
@@ -211,13 +248,15 @@ def construir(salida: Path, foto: Path | None, video: Path | None,
         )
         piezas["{{ESTILO_EXTRA}}"] = envolver_estilo(
             ESTILO_VIDEO,
-            ESTILO_ENCUADRE % (encuadre, encuadre) if encuadre else "")
+            ESTILO_ENCUADRE % (encuadre, encuadre) if encuadre else "",
+            "" if hay_retrato else SIN_RETRATO)
         piezas["{{GUION_EXTRA}}"] = GUION_VIDEO
     else:
         piezas["{{FOTO_HORNO}}"] = uri_archivo(RECURSOS / "foto-horno.jpg")
         piezas["{{CAPA_FONDO}}"] = '<div class="horno"></div>'
         piezas["{{ESTILO_EXTRA}}"] = envolver_estilo(
-            ESTILO_ENCUADRE % (encuadre, encuadre) if encuadre else "")
+            ESTILO_ENCUADRE % (encuadre, encuadre) if encuadre else "",
+            "" if hay_retrato else SIN_RETRATO)
         piezas["{{GUION_EXTRA}}"] = ""
 
     for hueco, valor in piezas.items():
@@ -237,6 +276,8 @@ def main() -> int:
     p.add_argument("--salida", default="index.html", help="archivo HTML a generar")
     p.add_argument("--foto", help="foto nueva para el fondo (se trata y se guarda)")
     p.add_argument("--video", help="vídeo para el fondo (se comprime aparte)")
+    p.add_argument("--retrato",
+                   help="foto de la familia para la vista de la historia")
     p.add_argument("--encuadre",
                    help='qué parte del fondo se ve en vertical, en formato '
                         'object-position (por ejemplo "30%% 52%%"). El móvil '
@@ -244,14 +285,16 @@ def main() -> int:
                         'plato no está centrado hay que decírselo.')
     a = p.parse_args()
 
-    for etiqueta, valor in (("--foto", a.foto), ("--video", a.video)):
+    for etiqueta, valor in (("--foto", a.foto), ("--video", a.video),
+                            ("--retrato", a.retrato)):
         if valor and not Path(valor).is_file():
             sys.exit(f"No encuentro el archivo de {etiqueta}: {valor}")
 
     construir(RAIZ / a.salida,
               Path(a.foto) if a.foto else None,
               Path(a.video) if a.video else None,
-              a.encuadre)
+              a.encuadre,
+              Path(a.retrato) if a.retrato else None)
     return 0
 
 

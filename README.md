@@ -10,7 +10,7 @@ Todo está señalizado con comentarios dentro del archivo:
 | Buscar en el archivo | Qué cambia |
 | --- | --- |
 | `ENLACES` | Las URLs de Rappi, PedidosYa, WhatsApp e Instagram |
-| `RELATO` | El texto de marca y la firma de Miguel Blanco |
+| `HISTORIA` | El texto de Miguel. Lo que va en `<em>` sale en dorado |
 | `HORARIO` | El horario y la línea "33 cm · 6 slices · masa delgada" |
 | `RECLAMACIONES` | El enlace al libro de reclamaciones |
 
@@ -56,9 +56,10 @@ sube solo, sin carpeta de assets.
 
 ## Las dos vistas
 
-La página son dos pantallas, no una columna larga: primero dónde pedir, y al
-bajar quién la hace. Un señuelo ("Desliza" con una flecha) avisa de que hay
-segunda, y `scroll-snap-type: y proximity` ayuda a caer en ella —`proximity` y
+La página son dos pantallas, no una columna larga: primero dónde pedir —la
+firma arriba y los cuatro botones en rejilla de 2×2, con el horario debajo—, y
+al bajar quién la hace: el retrato de la familia y el texto de Miguel. Un
+señuelo ("Conoce su historia" con una flecha) avisa de que hay segunda, y `scroll-snap-type: y proximity` ayuda a caer en ella —`proximity` y
 no `mandatory`, que secuestra el scroll y en un móvil se siente como si la
 página peleara. En apaisado no hay altura para dos pantallas, así que ahí el
 snap se apaga y vuelve a ser una columna.
@@ -153,6 +154,21 @@ para gastarse los datos en un fondo.
 
 En la versión con vídeo se desactiva el acercamiento del CSS: el vídeo ya trae
 su propio movimiento y encima se notaría como un temblor.
+
+## El retrato de la familia
+
+```bash
+python3 herramientas/construir.py --retrato familia.jpg --encuadre "30% 52%"
+```
+
+Se vira a cálido —el original es en blanco y negro, y un gris puro en una página
+de negros y dorados se sale de la paleta— y se funde a negro por abajo con una
+máscara de degradado, para que nazca del mismo negro en el que está escrita la
+historia. Una sola capa de máscara: cruzar dos con `mask-composite` se comporta
+distinto en cada navegador.
+
+Si no hay retrato, el build emite `.retrato { display: none }` y la historia se
+cuenta sobre el negro. La página funciona igual, solo pierde la foto.
 
 ## Logotipos## Logotipos
 
