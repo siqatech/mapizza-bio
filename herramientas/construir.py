@@ -27,6 +27,9 @@ import mimetypes
 import shutil
 import subprocess
 import sys
+import tempfile
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
@@ -74,6 +77,26 @@ def tratar_foto(origen: Path) -> bytes:
     buf = io.BytesIO()
     im.save(buf, "JPEG", quality=CALIDAD, optimize=True, progressive=True)
     return buf.getvalue()
+
+
+def traer(ruta: str) -> Path:
+    """Acepta una ruta local o una URL. Los originales del cliente viven en
+    su propio servidor, así que pedirlos por http ahorra el paso de
+    descargarlos a mano."""
+    if not ruta.startswith(("http://", "https://")):
+        destino = Path(ruta)
+        if not destino.is_file():
+            sys.exit(f"No encuentro el archivo: {ruta}")
+        return destino
+
+    sufijo = Path(urllib.parse.urlparse(ruta).path).suffix or ".bin"
+    temporal = Path(tempfile.mkdtemp()) / f"descarga{sufijo}"
+    print(f"  descargando {ruta}")
+    with urllib.request.urlopen(ruta, timeout=120) as respuesta, \
+            temporal.open("wb") as f:
+        shutil.copyfileobj(respuesta, f)
+    print(f"  descargado: {temporal.stat().st_size // 1024} kB")
+    return temporal
 
 
 def tratar_retrato(origen: Path) -> bytes:
@@ -221,7 +244,11 @@ def construir(salida: Path, foto: Path | None, video: Path | None,
     hay_retrato = (RECURSOS / "familia.jpg").is_file()
 
     piezas = {
-        "{{RETRATO}}": (uri_archivo(RECURSOS / "familia.jpg") if hay_retrato else "none"),
+        # Envuelto en url() aquí y no en la plantilla, porque sin retrato el
+        # valor tiene que ser 'none' a secas: un data URI pelado hace que
+        # background-image lo descarte y no se vea nada, sin dar ningún error.
+        "{{RETRATO}}": (f'url("{uri_archivo(RECURSOS / "familia.jpg")}")'
+                        if hay_retrato else "none"),
         "{{MA_MARK}}": uri_archivo(RECURSOS / "ma-marca.png"),
         "{{MA_LOCKUP}}": uri_archivo(RECURSOS / "ma-firma.png"),
         "{{RAPPI}}": uri_archivo(RECURSOS / "rappi.png"),
@@ -274,10 +301,10 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--salida", default="index.html", help="archivo HTML a generar")
-    p.add_argument("--foto", help="foto nueva para el fondo (se trata y se guarda)")
-    p.add_argument("--video", help="vídeo para el fondo (se comprime aparte)")
+    p.add_argument("--foto", help="foto nueva para el fondo; ruta o URL")
+    p.add_argument("--video", help="vídeo para el fondo; ruta o URL")
     p.add_argument("--retrato",
-                   help="foto de la familia para la vista de la historia")
+                   help="foto de la familia para la historia; ruta o URL")
     p.add_argument("--encuadre",
                    help='qué parte del fondo se ve en vertical, en formato '
                         'object-position (por ejemplo "30%% 52%%"). El móvil '
@@ -285,16 +312,11 @@ def main() -> int:
                         'plato no está centrado hay que decírselo.')
     a = p.parse_args()
 
-    for etiqueta, valor in (("--foto", a.foto), ("--video", a.video),
-                            ("--retrato", a.retrato)):
-        if valor and not Path(valor).is_file():
-            sys.exit(f"No encuentro el archivo de {etiqueta}: {valor}")
-
     construir(RAIZ / a.salida,
-              Path(a.foto) if a.foto else None,
-              Path(a.video) if a.video else None,
+              traer(a.foto) if a.foto else None,
+              traer(a.video) if a.video else None,
               a.encuadre,
-              Path(a.retrato) if a.retrato else None)
+              traer(a.retrato) if a.retrato else None)
     return 0
 
 

@@ -263,8 +263,9 @@ body {
   /* Tiene que medir una pantalla entera. Si mide menos, el navegador no
      puede desplazarse lo suficiente para dejarla arriba del todo, y al
      final acabas viendo la cola vacía de la vista anterior: ese era el
-     negro. Y como mide una pantalla, su contenido la reparte en vez de
-     amontonarse y dejar hueco. */
+     negro. */
+  /* El texto abajo: arriba manda el retrato. */
+  justify-content: flex-end;
   padding-top: clamp(2.5rem, 10vw, 4rem);
   padding-bottom: calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-bottom));
 }
@@ -555,19 +556,50 @@ body {
 /* ================================ historia ================================
    La segunda vista: el retrato, la voz de Miguel y la firma. */
 
+/* El retrato no es una ilustración dentro de la vista: ES la vista. Cubre
+   el panel entero, a sangre, y la historia se escribe encima. Es su
+   esencia, así que manda él y el texto se acomoda debajo. */
 .retrato {
-  margin: 0 calc(-1 * clamp(1rem, 4.5vw, 1.75rem)) clamp(1.75rem, 7vw, 2.75rem);
-  aspect-ratio: 1 / 1;
+  position: absolute;
+  inset: 0;
+  /* A sangre: se sale del padding lateral de la envoltura para llegar al
+     borde de la pantalla, como en la referencia. */
+  margin-inline: calc(-1 * clamp(1rem, 4.5vw, 1.75rem));
+  z-index: 0;
   background-image: var(--foto-familia);
   background-size: cover;
-  background-position: 50% 22%;
+  background-position: 50% 12%;
   /* Una sola capa de máscara. Cruzar dos con mask-composite se comporta
-     distinto en cada navegador, y para un fundido a negro basta con el
-     vertical: el retrato nace del mismo negro en el que está escrita la
-     historia. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 44%, rgba(0,0,0,0.5) 74%, transparent 98%);
-          mask-image: linear-gradient(to bottom, #000 0%, #000 44%, rgba(0,0,0,0.5) 74%, transparent 98%);
+     distinto en cada navegador, y con el vertical basta: el retrato
+     entra desde arriba y se deshace antes de llegar al texto. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0,0,0,0.45) 66%, transparent 88%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0,0,0,0.45) 66%, transparent 88%);
 }
+
+/* Viñeta y fundido. Hacen tres cosas a la vez: apagan los bordes del
+   retrato —lo de los bordes difuminados—, tapan la franja de pizza del
+   fondo fijo, que aquí competiría con la familia, y le dan al texto una
+   base sobre la que se lee sin pelear. */
+.vista--historia::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin-inline: calc(-1 * clamp(1rem, 4.5vw, 1.75rem));
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(118% 76% at 50% 20%, transparent 38%, rgba(5, 4, 3, 0.6) 100%),
+    linear-gradient(to bottom,
+      transparent 10%,
+      rgba(5, 4, 3, 0.36) 38%,
+      rgba(5, 4, 3, 0.84) 60%,
+      rgba(5, 4, 3, 0.96) 76%,
+      var(--negro) 100%);
+}
+
+/* Y el texto por delante de las dos capas. */
+.vista--historia > .historia,
+.vista--historia > .pie { position: relative; z-index: 2; }
 
 .historia {
   max-width: 24rem;
@@ -720,7 +752,7 @@ body {
   .cabecera { margin-bottom: 1rem; }
   .cabecera .firma-alta { width: 4.5rem; }
   .horario { margin-top: 1rem; }
-  .retrato { aspect-ratio: 16 / 9; margin-bottom: 1rem; }
+  .retrato { background-position: 50% 20%; }
   .cintillo { margin-bottom: 1rem; }
   .cara { padding-block: 0.5rem; }
   .logo-ma        { width: 2.75rem; }

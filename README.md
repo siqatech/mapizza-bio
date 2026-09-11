@@ -158,17 +158,31 @@ su propio movimiento y encima se notaría como un temblor.
 ## El retrato de la familia
 
 ```bash
-python3 herramientas/construir.py --retrato familia.jpg --encuadre "30% 52%"
+python3 herramientas/construir.py --retrato http://mapizza.pe/herramientas/familia.jpg
 ```
 
-Se vira a cálido —el original es en blanco y negro, y un gris puro en una página
-de negros y dorados se sale de la paleta— y se funde a negro por abajo con una
-máscara de degradado, para que nazca del mismo negro en el que está escrita la
-historia. Una sola capa de máscara: cruzar dos con `mask-composite` se comporta
-distinto en cada navegador.
+`--foto`, `--video` y `--retrato` aceptan una ruta local **o una URL**.
+
+El retrato no es una ilustración dentro de la vista: **es** la vista. Cubre el
+panel entero a sangre, anclado arriba, y la historia se escribe encima. Se vira
+a cálido —el original es en blanco y negro, y un gris puro en una página de
+negros y dorados se sale de la paleta— y se deshace con una máscara de degradado
+antes de llegar al texto. Una sola capa de máscara: cruzar dos con
+`mask-composite` se comporta distinto en cada navegador.
+
+Encima va `.vista--historia::before`, que hace tres cosas a la vez: apaga los
+bordes del retrato con una viñeta, tapa la franja de pizza del fondo fijo —que
+aquí competiría con la familia— y le da al texto una base sobre la que se lee.
+Probado con un retrato de alto clave, que es el peor caso: el texto se queda en
+4,9:1.
 
 Si no hay retrato, el build emite `.retrato { display: none }` y la historia se
 cuenta sobre el negro. La página funciona igual, solo pierde la foto.
+
+Un detalle que cuesta ver: el valor de `--foto-familia` se envuelve en `url()`
+**en el build**, no en la plantilla, porque sin retrato tiene que ser `none` a
+secas. Un data URI pelado hace que `background-image` lo descarte y no se vea
+nada, sin dar ningún error.
 
 ## Logotipos## Logotipos
 
