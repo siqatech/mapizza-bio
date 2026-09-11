@@ -223,7 +223,7 @@ GUION_VIDEO = """
 
 SIN_RETRATO = """
 /* Sin retrato, la historia se cuenta sobre el negro y ya. */
-.retrato { display: none; }
+.marco-retrato { display: none; }
 """
 
 

@@ -559,21 +559,40 @@ body {
 /* El retrato no es una ilustración dentro de la vista: ES la vista. Cubre
    el panel entero, a sangre, y la historia se escribe encima. Es su
    esencia, así que manda él y el texto se acomoda debajo. */
-.retrato {
+/* Marco y retrato son dos capas porque cada una lleva su propia máscara:
+   la de los lados aquí y la de abajo en el retrato. Cruzar dos máscaras
+   en un solo elemento con mask-composite se comporta distinto en cada
+   navegador; anidarlas funciona en todos. */
+.marco-retrato {
   position: absolute;
-  inset: 0;
+  inset: 0 0 auto 0;
+  /* Dos tercios de la pantalla, no la pantalla entera. La foto es
+     cuadrada y el panel vertical: a pantalla completa, 'cover' recorta
+     tanto de ancho que parte por la mitad la cara del hijo. A esta altura
+     entran los tres y solo se pierde algo de fondo por los lados. */
+  height: 64%;
   /* A sangre: se sale del padding lateral de la envoltura para llegar al
      borde de la pantalla, como en la referencia. */
   margin-inline: calc(-1 * clamp(1rem, 4.5vw, 1.75rem));
   z-index: 0;
+  /* En el móvil esto solo suaviza el borde de la pantalla; en pantallas
+     anchas es lo que evita que la foto se lea como un rectángulo pegado
+     en mitad del negro. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+}
+
+.retrato {
+  position: absolute;
+  inset: 0;
   background-image: var(--foto-familia);
   background-size: cover;
-  background-position: 50% 12%;
+  background-position: 50% 40%;
   /* Una sola capa de máscara. Cruzar dos con mask-composite se comporta
      distinto en cada navegador, y con el vertical basta: el retrato
      entra desde arriba y se deshace antes de llegar al texto. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0,0,0,0.45) 66%, transparent 88%);
-          mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0,0,0,0.45) 66%, transparent 88%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0,0,0,0.45) 80%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0,0,0,0.45) 80%, transparent 100%);
 }
 
 /* Viñeta y fundido. Hacen tres cosas a la vez: apagan los bordes del
@@ -584,7 +603,10 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  margin-inline: calc(-1 * clamp(1rem, 4.5vw, 1.75rem));
+  /* A ventana completa, no solo la columna: en pantallas anchas el fondo
+     de pizza quedaba encendido a los lados y hacía que el retrato se
+     leyera como un recorte pegado en mitad del negro. */
+  margin-inline: calc(50% - 50vw);
   z-index: 1;
   pointer-events: none;
   background:
@@ -735,7 +757,16 @@ body {
 
 @media (min-width: 48rem) {
   :root { --alto-tarjeta: 6.5rem; }
-  .envoltura { max-width: 31rem; padding-block: 2.75rem; }
+  /* La columna es estrecha y el negro de alrededor mucho: el borde del
+     retrato se nota más que en el móvil y necesita más recorrido. */
+  .marco-retrato {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 20%, #000 80%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, #000 20%, #000 80%, transparent 100%);
+  }
+  /* Sin padding vertical: el aire lo ponen las vistas. El que había aquí
+     sobresalía por debajo del último panel y dejaba asomar una franja del
+     fondo de pizza bajo la historia. */
+  .envoltura { max-width: 31rem; }
 }
 
 /* Móvil apaisado y pantallas bajas: nada de scroll innecesario. */
@@ -752,7 +783,8 @@ body {
   .cabecera { margin-bottom: 1rem; }
   .cabecera .firma-alta { width: 4.5rem; }
   .horario { margin-top: 1rem; }
-  .retrato { background-position: 50% 20%; }
+  .marco-retrato { height: 72%; }
+  .retrato { background-position: 50% 34%; }
   .cintillo { margin-bottom: 1rem; }
   .cara { padding-block: 0.5rem; }
   .logo-ma        { width: 2.75rem; }
@@ -895,8 +927,9 @@ body {
 <!-- ===================== VISTA 2 — su historia ===================== -->
 <section class="vista vista--historia" id="historia">
 
-  <i class="retrato asoma" role="img"
-     aria-label="Miguel Alberto Blanco con su familia"></i>
+  <div class="marco-retrato asoma">
+    <i class="retrato" role="img" aria-label="Miguel Alberto Blanco con su familia"></i>
+  </div>
 
   <!-- ================================================================
        HISTORIA — el texto de Miguel. Lo que va en <em> sale en dorado.

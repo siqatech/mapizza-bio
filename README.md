@@ -158,7 +158,7 @@ su propio movimiento y encima se notaría como un temblor.
 ## El retrato de la familia
 
 ```bash
-python3 herramientas/construir.py --retrato http://mapizza.pe/herramientas/familia.jpg
+python3 herramientas/construir.py --retrato http://mapizza.pe/assets/familia.jpeg
 ```
 
 `--foto`, `--video` y `--retrato` aceptan una ruta local **o una URL**.
@@ -170,11 +170,21 @@ negros y dorados se sale de la paleta— y se deshace con una máscara de degrad
 antes de llegar al texto. Una sola capa de máscara: cruzar dos con
 `mask-composite` se comporta distinto en cada navegador.
 
+Ocupa el **64 % de la altura** del panel, no el 100 %. La foto es cuadrada y el
+panel vertical: a pantalla completa, `cover` recorta tanto de ancho que parte
+por la mitad la cara del hijo. A esa altura entran los tres.
+
+El difuminado va en **dos capas anidadas**, `.marco-retrato` (lados) y
+`.retrato` (abajo), cada una con una sola máscara. Cruzar dos máscaras en un
+mismo elemento con `mask-composite` se comporta distinto en cada navegador;
+anidarlas funciona en todos.
+
 Encima va `.vista--historia::before`, que hace tres cosas a la vez: apaga los
-bordes del retrato con una viñeta, tapa la franja de pizza del fondo fijo —que
-aquí competiría con la familia— y le da al texto una base sobre la que se lee.
-Probado con un retrato de alto clave, que es el peor caso: el texto se queda en
-4,9:1.
+bordes con una viñeta, tapa la franja de pizza del fondo fijo —que aquí
+competiría con la familia— y le da al texto una base sobre la que se lee. Va a
+**ventana completa** (`margin-inline: calc(50% - 50vw)`), no solo a la columna:
+en pantallas anchas la pizza quedaba encendida a los lados y el retrato se leía
+como un recorte pegado en mitad del negro.
 
 Si no hay retrato, el build emite `.retrato { display: none }` y la historia se
 cuenta sobre el negro. La página funciona igual, solo pierde la foto.
