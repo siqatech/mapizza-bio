@@ -64,9 +64,21 @@ Tres decisiones que sostienen lo demás:
    componente. Hacen lo mismo mientras pasas por delante, pero no pueden
    salirse ni taparle nada al resto de la página.
 
+El CSS del plugin sale de `herramientas/a-plugin.py`, que renombra las clases y
+lo cuelga todo de `.mapb`. El script **falla** si encuentra una regla fuera de
+`.mapb` o una clase sin prefijo: una clase sin renombrar no da error en ningún
+sitio, simplemente deja de casar con el marcado y ese trozo del diseño
+desaparece en silencio. Pasó con `.horno`, y por eso existe la comprobación.
+
 `.mapb` lleva `overflow-x: clip` y no `hidden`: `hidden` crearía un contenedor
 de desplazamiento y dejaría de funcionar el `sticky` del fondo. `clip` recorta
 los anchos a sangre sin sacar barra horizontal en el sitio.
+
+El marcado sale **sin un solo salto de línea**. No es cosmética: `wpautop`
+convierte los saltos dobles en párrafos, y cuando el shortcode se pinta antes de
+ese filtro —lo que ocurre dentro del widget de texto de Elementor— acaba metiendo
+`<p>` y `</p>` sueltos dentro del componente. Esos párrafos vacíos heredan el
+margen del tema y salen como franjas en blanco.
 
 Un botón apagado se pinta como `<span>` sin `href`, no como un enlace con el
 clic anulado: así no responde ni al dedo, ni al teclado, ni a un lector de

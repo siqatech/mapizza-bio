@@ -55,7 +55,22 @@ class MAPB_Render {
 	</div>
 </div>
 		<?php
-		return ob_get_clean();
+		return self::en_una_linea( ob_get_clean() );
+	}
+
+	/**
+	 * Devuelve el marcado sin un solo salto de línea.
+	 *
+	 * No es cosmética: wpautop convierte los saltos dobles en párrafos, y
+	 * cuando el shortcode se pinta ANTES de ese filtro —que es lo que pasa
+	 * dentro del widget de texto de Elementor— acaba metiendo <p> y </p>
+	 * sueltos dentro del componente. Esos párrafos vacíos heredan el margen
+	 * del tema y aparecen como franjas en blanco arriba y abajo.
+	 *
+	 * Sin saltos de línea, wpautop no tiene dónde cortar.
+	 */
+	private static function en_una_linea( $html ) {
+		return trim( preg_replace( '/\s*\R\s*/u', ' ', $html ) );
 	}
 
 	/**

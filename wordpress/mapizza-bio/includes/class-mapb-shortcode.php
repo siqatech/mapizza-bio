@@ -16,10 +16,14 @@ class MAPB_Shortcode {
 
 	const ETIQUETA = 'mapizza_bio';
 
+	/** Algún perfil de la página pidió el ajuste de desplazamiento. */
+	private static $con_ajuste = false;
+
 	public static function init() {
 		add_shortcode( self::ETIQUETA, array( __CLASS__, 'pintar' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'registrar' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'encolar_si_toca' ), 20 );
+		add_action( 'wp_footer', array( __CLASS__, 'estilo_ajuste' ) );
 	}
 
 	public static function registrar() {
@@ -89,22 +93,26 @@ class MAPB_Shortcode {
 		self::encolar();
 
 		$datos = MAPB_Perfil::leer( $id );
-		$html  = MAPB_Render::pintar( $datos );
 
 		if ( ! empty( $datos['ajuste_scroll'] ) ) {
-			$html = self::estilo_ajuste() . $html;
+			self::$con_ajuste = true;
 		}
 
-		return $html;
+		return MAPB_Render::pintar( $datos );
 	}
 
 	/**
 	 * El ajuste de desplazamiento entre vistas va en el documento, no en el
 	 * componente: scroll-snap-type tiene que estar en el elemento que
-	 * desplaza. Por eso es opcional y sale aparte, bien a la vista, en lugar
-	 * de ir escondido en la hoja de estilos afectando a cualquier página.
+	 * desplaza. Por eso es opcional y se imprime aquí, en el pie, y no dentro
+	 * del contenido: una etiqueta <style> metida en mitad del contenido es
+	 * justo lo que wpautop parte en dos con un párrafo por medio.
 	 */
-	private static function estilo_ajuste() {
-		return '<style id="mapb-ajuste">html{scroll-snap-type:y proximity}</style>';
+	public static function estilo_ajuste() {
+		if ( ! self::$con_ajuste ) {
+			return;
+		}
+
+		echo '<style id="mapb-ajuste">html{scroll-snap-type:y proximity}</style>';
 	}
 }

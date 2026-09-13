@@ -124,7 +124,7 @@
    tercio inferior: negro puro hasta el 70 %, un ascenso corto, y otra vez
    a la baja al llegar al pie. Así la pizza se intuye de fondo sin que la
    página deje de ser negra, que es donde las tarjetas recortan. */
-.mapb .horno {
+.mapb .mapb-horno {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -172,7 +172,7 @@
 
 /* Sombra bajo la firma: la foto sube el nivel de negro justo donde van el
    logotipo y el horario, y sin esto el texto pierde contraste. */
-.mapb .horno::after {
+.mapb .mapb-horno::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -748,7 +748,7 @@
 @media (prefers-reduced-motion: reduce) {
 .mapb .mapb-brasas,
 .mapb .mapb-fondo::before { display: none; }
-.mapb .horno { animation: none; transform: scale(1.08); }
+.mapb .mapb-horno { animation: none; transform: scale(1.08); }
 .mapb *,
 .mapb *::before,
 .mapb *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
@@ -791,9 +791,7 @@
 .mapb .mapb-horario { margin-top: 1rem; }
 .mapb .mapb-marco-retrato { height: 72%; }
 .mapb .mapb-retrato { background-position: 50% 34%; }
-.mapb .cintillo { margin-bottom: 1rem; }
 .mapb .mapb-cara { padding-block: 0.5rem; }
-.mapb .logo-ma { width: 2.75rem; }
 .mapb .mapb-logo-rappi { width: 5rem; }
 .mapb .mapb-logo-pedidosya { width: 5.5rem; }
 .mapb .mapb-logo-icono { width: 2.25rem; }
@@ -810,10 +808,6 @@
 
 /* Teléfonos muy estrechos (iPhone SE): el cintillo se parte en dos. */
 @media (max-width: 22.5rem) {
-.mapb .cintillo { flex-wrap: wrap; gap: 0.4rem 0.5rem; }
-.mapb .cintillo img { order: -1; width: 2.25rem; }
-.mapb .cintillo .punto { display: none; }
-.mapb .cintillo span { font-size: 0.5rem; letter-spacing: 0.18em; }
 }
 /* ===================================================================
    Piezas que solo existen en la versión de WordPress
