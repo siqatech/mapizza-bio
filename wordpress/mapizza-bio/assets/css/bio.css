@@ -1,0 +1,879 @@
+
+/* ===================================================================
+   MA PIZZA — página de enlaces para la bio de Instagram
+   Archivo único: no depende de nada externo, se sube tal cual.
+
+   PARA EDITAR:
+     · Enlaces .......... buscar  "ENLACES"
+     · Horario .......... buscar  "HORARIO"
+     · Reclamaciones .... buscar  "RECLAMACIONES"
+   =================================================================== */
+
+/* Ángulos registrados: sin esto el navegador no sabe interpolarlos y
+   el reflejo del borde no se movería. Donde no exista @property el
+   borde dorado se queda quieto, que es una degradación aceptable. */
+@property --mapb-giro { syntax: '<angle>'; initial-value: 0deg;   inherits: false; }
+@property --mapb-luz { syntax: '<number>'; initial-value: 0.26; inherits: false; }
+.mapb {
+  /* Las imágenes las pone PHP como variables en el propio elemento, desde
+     la biblioteca de medios. Aquí solo van los valores de reserva, para
+     que el componente no se rompa si un campo está vacío. */
+  --foto-horno:   none;
+  --foto-familia: none;
+  --ma-firma:     none;
+
+  --negro:       #050403;
+  --carbon:      #0a0806;
+  --carta:       #0e0c0a;
+  --hueso:       #f7f3ec;
+  --tenue:       rgba(247, 243, 236, 0.55);
+  --oro:         #e8b866;
+  --oro-claro:   #ffe7b8;
+  --oro-hondo:   rgba(232, 184, 102, 0.22);
+
+  --serif: Georgia, 'Times New Roman', Times, serif;
+  --sans:  -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Alto de la tarjeta: manda en todo el ritmo vertical de la página. */
+  --alto-tarjeta: clamp(5.25rem, 19vw, 6.75rem);
+  --alto-vista: 100svh;
+
+  /* Antes esto estaba en html y en body. Ahí fuera le habría cambiado la
+     tipografía y el fondo a todo el sitio; aquí solo manda dentro. */
+  position: relative;
+  isolation: isolate;
+  /* clip y no hidden: 'hidden' crearía un contenedor de desplazamiento y
+     dejaría de funcionar el 'sticky' del fondo. 'clip' recorta y ya, que
+     es justo lo que hace falta para que los anchos a sangre no saquen
+     una barra horizontal en el sitio. */
+  overflow-x: clip;
+  background: var(--negro);
+  color: var(--hueso);
+  font-family: var(--sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  /* Sin destello azul al tocar y sin espera de 300 ms en el tap. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
+  color-scheme: dark;
+}
+.mapb *,
+.mapb *::before,
+.mapb *::after { box-sizing: border-box; }
+
+
+/* ====================== fondo: piedra y brasas ======================
+   Todo generado por CSS/SVG. Pesa unos pocos bytes y se ve igual en
+   cualquier pantalla, a diferencia de una foto que hay que recortar. */
+
+/* El lienzo cubre el componente entero y su marco se queda pegado a la
+   ventana mientras pasas por delante: es lo mismo que hacía position:
+   fixed, pero sin poder salirse del componente ni taparle nada al sitio. */
+.mapb .mapb-lienzo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mapb .mapb-marco {
+  position: sticky;
+  top: 0;
+  height: var(--alto-vista);
+  overflow: clip;
+}
+
+.mapb .mapb-fondo {
+  position: absolute;
+  inset: 0;
+  /* z-index 0, nunca negativo: una capa negativa se pinta ANTES que el
+     fondo de los elementos en flujo, así que el negro opaco de body la
+     tapaba entera. El contenido pasa por delante con .mapb-envoltura{z-index:1}. */
+  z-index: 0;
+  pointer-events: none;
+  background:
+    /* brasa del horno: pegada al vértice, para que no invada la columna
+       de tarjetas. Todo lo que no sea esquina tiene que ser negro. */
+    radial-gradient(34% 19% at 100% -6%,  rgba(255, 176, 74,  0.34), transparent 66%),
+    radial-gradient(18% 11% at 104% -10%, rgba(255, 220, 160, 0.26), transparent 64%),
+    /* rescoldo bajo, detrás de la firma */
+    radial-gradient(52% 17% at 50% 110%,  rgba(226, 128, 40,  0.26), transparent 70%),
+    radial-gradient(24% 12% at -4% 104%,  rgba(198, 96,  32,  0.22), transparent 68%),
+    /* Sin realce central: ese era el gris que rodeaba a las tarjetas. */
+    #040303;
+}
+
+
+/* Dos halos cálidos que se cruzan muy despacio: el negro deja de ser
+   plano sin que llegue a notarse el movimiento. */
+.mapb .mapb-fondo::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(18% 13% at 10% 6%,  rgba(255, 190, 96,  0.10), transparent 76%),
+    radial-gradient(20% 15% at 92% 86%, rgba(214, 112, 40,  0.11), transparent 76%);
+  animation: mapb-vagar 34s ease-in-out infinite alternate;
+}
+
+
+/* La foto cubre toda la vista, pero la máscara solo la deja asomar en el
+   tercio inferior: negro puro hasta el 70 %, un ascenso corto, y otra vez
+   a la baja al llegar al pie. Así la pizza se intuye de fondo sin que la
+   página deje de ser negra, que es donde las tarjetas recortan. */
+.mapb .horno {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* En la versión con vídeo esto es el póster: se ve desde el primer
+     fotograma y se queda si el vídeo no llega a cargar. */
+  background-image: var(--foto-horno);
+  background-size: cover;
+  background-position: 50% 64%;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 64%;
+  opacity: 0.88;
+  -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent      0%,
+      transparent     46%,
+      rgba(0,0,0,0.16) 60%,
+      rgba(0,0,0,0.66) 74%,
+      rgba(0,0,0,0.96) 86%,
+      rgba(0,0,0,1)    94%,
+      rgba(0,0,0,0.92) 100%);
+          mask-image: linear-gradient(
+      to bottom,
+      transparent      0%,
+      transparent     46%,
+      rgba(0,0,0,0.16) 60%,
+      rgba(0,0,0,0.66) 74%,
+      rgba(0,0,0,0.96) 86%,
+      rgba(0,0,0,1)    94%,
+      rgba(0,0,0,0.92) 100%);
+  animation: mapb-acercar 58s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+
+/* Movimiento sutil de verdad: un acercamiento corto y muy lento. Solo
+   anima transform, así que no le cuesta nada al hilo principal. */
+@keyframes mapb-acercar {
+  from { transform: scale(1.05) translate3d(0, 0, 0); }
+  to   { transform: scale(1.14) translate3d(-1.2%, -1.4%, 0); }
+}
+
+
+/* Sombra bajo la firma: la foto sube el nivel de negro justo donde van el
+   logotipo y el horario, y sin esto el texto pierde contraste. */
+.mapb .horno::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 4, 3, 0.55), rgba(5, 4, 3, 0.2) 26%, transparent 46%);
+}
+
+
+/* Grano de piedra. feTurbulence en línea: ~200 bytes por una textura
+   que no se repite de forma visible. */
+.mapb .mapb-fondo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;          /* el grano va por encima de la foto */
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+@keyframes mapb-vagar {
+  from { transform: translate3d(-2%, 1%, 0) scale(1); }
+  to   { transform: translate3d(3%, -2%, 0) scale(1.08); }
+}
+
+
+/* Brasas. Puntos con radial-gradient en vez de filter:blur — el blur
+   sobre elementos animados hunde el frame rate en gama media. */
+.mapb .mapb-brasas { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.mapb .mapb-brasa {
+  position: absolute;
+  bottom: -8vh;
+  width: var(--t, 4px);
+  height: var(--t, 4px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 190, 1), rgba(255, 176, 74, 0.55) 40%, transparent 72%);
+  box-shadow: 0 0 10px rgba(255, 176, 74, 0.55);
+  opacity: 0;
+  animation: mapb-subir var(--dur, 17s) linear infinite;
+  animation-delay: var(--esp, 0s);
+  will-change: transform, opacity;
+}
+@keyframes mapb-subir {
+  0%   { opacity: 0;   transform: translate3d(0, 0, 0) scale(0.7); }
+  12%  { opacity: 1; }
+  70%  { opacity: 0.7; }
+  100% { opacity: 0;   transform: translate3d(var(--dx, 14px), -112vh, 0) scale(1.15); }
+}
+
+
+/* ============================= estructura ============================= */
+
+.mapb .mapb-envoltura {
+  position: relative;
+  z-index: 2;          /* por delante del lienzo */
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4.5vw, 1.75rem);
+}
+
+
+/* Cada vista ocupa la pantalla y centra lo suyo. El aire de arriba y de
+   abajo es lo que las separa: sin él las dos se leen como una sola
+   columna apretada. */
+.mapb .mapb-vista {
+  position: relative;
+  min-height: var(--alto-vista);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(2.5rem, 10vw, 4.5rem);
+}
+
+/* El ajuste entre vistas solo si el perfil lo pide. scroll-snap-type va en
+   el documento, así que afectaría al desplazamiento de TODA la página:
+   por eso viene apagado y hay que encenderlo a conciencia. */
+.mapb--ajuste .mapb-vista { scroll-snap-align: start; }
+
+
+/* La segunda vista lleva el aire ARRIBA, que es lo que la separa de la
+   primera, y poco abajo. Centrada a secas dejaba siglo y medio de negro
+   bajo el último renglón, y al llegar al final parecía que la página se
+   había quedado a medias. */
+.mapb .mapb-vista--historia {
+  /* Al fondo del panel, no centrado: 'center' reparte el sobrante mitad
+     arriba y mitad abajo, y esa mitad de abajo era el negro del final.
+     Aquí todo el aire se va arriba, que además es la separación entre
+     una vista y la otra. */
+  /* Tiene que medir una pantalla entera. Si mide menos, el navegador no
+     puede desplazarse lo suficiente para dejarla arriba del todo, y al
+     final acabas viendo la cola vacía de la vista anterior: ese era el
+     negro. */
+  /* El texto abajo: arriba manda el retrato. */
+  justify-content: flex-end;
+  padding-top: clamp(2.5rem, 10vw, 4rem);
+  padding-bottom: calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-bottom));
+}
+
+
+/* ------------------------------ señuelo ------------------------------
+   Sin esto nadie sabe que hay una segunda vista: la primera termina
+   justo en el borde de la pantalla y parece el final. */
+.mapb .mapb-senuelo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: clamp(2rem, 8vw, 3rem);
+  padding: 0.5rem;
+  min-height: 2.75rem;
+  text-decoration: none;
+  color: rgba(247, 243, 236, 0.5);
+  font-size: 0.5625rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  transition: color 0.25s ease, opacity 0.4s ease;
+}
+.mapb .mapb-senuelo svg { width: 1rem; height: 1rem; }
+.mapb .mapb-senuelo:active { color: var(--hueso); }
+@media (hover: hover) and (pointer: fine) {
+.mapb .mapb-senuelo:hover { color: var(--hueso); }
+}
+
+
+/* Una vez que has bajado ya no hace falta que insista. */
+.mapb .mapb-senuelo.mapb-ido { opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+.mapb .mapb-senuelo svg { animation: mapb-cabecear 2.4s ease-in-out infinite; }
+@keyframes mapb-cabecear {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(4px); }
+  }
+}
+
+
+/* =============================== cabecera ===============================
+   La firma preside la primera vista, como en el boceto. Al estar arriba,
+   los botones ya no necesitan repetir el logotipo en cada uno. */
+
+.mapb .mapb-cabecera {
+  text-align: center;
+  margin-bottom: clamp(1.75rem, 7vw, 2.75rem);
+}
+.mapb .mapb-cabecera .mapb-firma-alta {
+  width: clamp(6.5rem, 30vw, 9rem);
+  aspect-ratio: 274 / 404;
+  margin-inline: auto;
+  background-image: var(--ma-firma);
+  filter: drop-shadow(0 2px 26px rgba(232, 184, 102, 0.3));
+}
+.mapb .mapb-cabecera .mapb-lema {
+  margin: clamp(1rem, 4vw, 1.5rem) 0 0;
+  font-size: clamp(0.5rem, 2.3vw, 0.625rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(247, 243, 236, 0.62);
+  text-shadow: 0 1px 10px rgba(5, 4, 3, 0.9);
+}
+
+
+/* ================================ tarjetas ================================ */
+
+.mapb .mapb-enlaces {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Dos columnas, como el boceto. Cuatro botones en fila ocupaban toda la
+     pantalla de alto y no dejaban sitio ni al horario ni a la llamada. */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.625rem, 2.8vw, 1rem);
+}
+
+
+/* El aspect-ratio fija el alto preferido, pero el contenido puede
+   estirarlo: los logotipos de mapa de bits pedían más que los SVG y los
+   botones salían desiguales. Con la celda estirada y el botón al 100 %,
+   todos los de una fila miden lo que el más alto. */
+.mapb .mapb-enlaces > li { display: grid; }
+.mapb .mapb-tarjeta { height: 100%; }
+.mapb .mapb-tarjeta {
+  --mapb-luz: 0.26;          /* intensidad del halo exterior en reposo */
+  position: relative;
+  display: block;
+  min-height: var(--alto-tarjeta);
+  aspect-ratio: 5 / 4;
+  border: 1.5px solid transparent;   /* el carril del degradado dorado */
+  border-radius: clamp(16px, 4.5vw, 22px);
+  text-decoration: none;
+  color: var(--hueso);
+  isolation: isolate;
+  /* Relleno recortado al padding-box y degradado al border-box: así el
+     contorno lleva su propia luz sin que se cuele en el interior. */
+  background:
+    linear-gradient(var(--carta), var(--carta)) padding-box,
+    conic-gradient(
+      from var(--mapb-giro),
+      rgba(232, 184, 102, 0.45)   0deg,
+      rgba(255, 240, 214, 1.00)  38deg,
+      rgba(232, 184, 102, 0.50) 102deg,
+      rgba(196, 146, 74,  0.38) 176deg,
+      rgba(255, 240, 214, 0.95) 216deg,
+      rgba(232, 184, 102, 0.50) 286deg,
+      rgba(232, 184, 102, 0.45) 360deg
+    ) border-box;
+  box-shadow:
+    0 0 0 0.5px rgba(232, 184, 102, 0.12),
+    0 0 18px rgba(232, 184, 102, var(--mapb-luz)),
+    0 0 46px rgba(232, 184, 102, calc(var(--mapb-luz) * 0.55)),
+    0 10px 32px rgba(0, 0, 0, 0.6);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease,
+    --mapb-giro 1.1s linear;
+}
+
+
+/* Respiración: cada tarjeta gira su reflejo con un desfase distinto,
+   así la fila se ve viva aunque nadie la toque. */
+@media (prefers-reduced-motion: no-preference) {
+.mapb .mapb-tarjeta { animation: mapb-girar 9s linear infinite; animation-delay: var(--fase, 0s); }
+@keyframes mapb-girar { to { --mapb-giro: 360deg; } }
+}
+
+
+/* Barras de luz en el centro del borde superior e inferior: es el
+   detalle que define la referencia del cliente. */
+.mapb .mapb-tarjeta::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(46% 2px  at 50% 0,    rgba(255, 244, 222, 1), transparent 100%),
+    radial-gradient(60% 10px at 50% 0,    rgba(255, 214, 140, 0.5), transparent 100%),
+    radial-gradient(46% 2px  at 50% 100%, rgba(255, 244, 222, 0.95), transparent 100%),
+    radial-gradient(60% 10px at 50% 100%, rgba(255, 214, 140, 0.45), transparent 100%);
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+
+/* Destello del toque: nace en el punto exacto donde cae el dedo. */
+.mapb .mapb-tarjeta .mapb-destello {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  /* Un lustre muy tenue arriba: sin él la tarjeta se lee como un agujero
+     recortado en la página, no como una pieza de cristal negro. */
+  background:
+    linear-gradient(to bottom, rgba(247, 243, 236, 0.05), transparent 42%),
+    radial-gradient(120% 70% at 50% 0%, rgba(232, 184, 102, 0.05), transparent 70%);
+}
+.mapb .mapb-tarjeta .mapb-destello::after {
+  content: '';
+  position: absolute;
+  left: var(--tx, 50%);
+  top: var(--ty, 50%);
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 231, 184, 0.55), rgba(232, 184, 102, 0.18) 45%, transparent 72%);
+  opacity: 0;
+  transform: scale(1);
+}
+.mapb .mapb-tarjeta.mapb-pulsa .mapb-destello::after {
+  animation: mapb-onda 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes mapb-onda {
+  0%   { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(34); }
+}
+
+
+/* --------- contenido: logo MA · línea · logo del socio --------- */
+
+.mapb .mapb-cara {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.75rem, 3.5vw, 1.25rem);
+}
+.mapb .mapb-cara svg { display: block; max-width: 100%; height: auto; }
+
+
+/* Cajas con background-image en vez de <img>: mismo resultado visual,
+   una sola copia del archivo. Llevan role/aria-label para que el lector
+   de pantalla las siga anunciando. */
+.mapb .mapb-bmp {
+  display: block;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+
+/* Cada logotipo pide su propio ancho para que todos pesen igual a la
+   vista: el ojo compara manchas de tinta, no cajas. El aspect-ratio
+   reserva el alto antes de que pinte la imagen, así nada salta. */
+.mapb .mapb-logo-rappi {
+  width: min(72%, 9rem);
+  aspect-ratio: 620 / 260;
+  background-image: var(--rappi);
+}
+.mapb .mapb-logo-pedidosya {
+  width: min(84%, 10.5rem);
+  aspect-ratio: 560 / 126;
+  background-image: var(--pedidosya);
+}
+.mapb .mapb-logo-icono { width: min(40%, 3.75rem); height: auto; }
+
+
+/* ------------------------ estados: dedo y ratón ------------------------ */
+
+.mapb .mapb-tarjeta:active {
+  transform: scale(0.978);
+  --mapb-luz: 0.7;
+}
+.mapb .mapb-tarjeta:active::before { opacity: 1; }
+
+
+/* El hover solo donde hay puntero real: en un móvil se quedaría pegado
+   después del toque. */
+@media (hover: hover) and (pointer: fine) {
+.mapb .mapb-tarjeta:hover {
+    transform: translateY(-3px);
+    --mapb-luz: 0.58;
+  }
+.mapb .mapb-tarjeta:hover::before { opacity: 1; }
+.mapb .mapb-tarjeta:hover .mapb-bmp,
+.mapb .mapb-tarjeta:hover .mapb-logo-icono { transform: scale(1.05); }
+.mapb .mapb-cara .mapb-bmp,
+.mapb .mapb-cara svg { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+}
+.mapb .mapb-tarjeta:focus-visible {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 4px;
+}
+
+
+/* ================================ horario ================================
+   En la primera vista, bajo los botones: es lo segundo que se mira
+   después de decidir por dónde pedir. */
+
+.mapb .mapb-horario {
+  margin-top: clamp(1.75rem, 7vw, 2.5rem);
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(5, 4, 3, 0.92), 0 1px 3px rgba(5, 4, 3, 0.8);
+}
+.mapb .mapb-horario .mapb-rango {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.25rem, 5.5vw, 1.5rem);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--hueso);
+}
+.mapb .mapb-horario .mapb-dias {
+  margin: 0.4rem 0 0;
+  font-size: clamp(0.5625rem, 2.4vw, 0.625rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.mapb .mapb-horario .mapb-datos {
+  margin: 0.9rem 0 0;
+  font-size: clamp(0.5rem, 2.2vw, 0.5625rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  /* 0.42 daba 3.75:1 aquí: esta línea cayó sobre la franja de pizza, que
+     ahora es más clara que cuando se eligió el tono. */
+  color: rgba(247, 243, 236, 0.6);
+}
+
+
+/* ================================ historia ================================
+   La segunda vista: el retrato, la voz de Miguel y la firma. */
+
+/* El retrato no es una ilustración dentro de la vista: ES la vista. Cubre
+   el panel entero, a sangre, y la historia se escribe encima. Es su
+   esencia, así que manda él y el texto se acomoda debajo. */
+/* Marco y retrato son dos capas porque cada una lleva su propia máscara:
+   la de los lados aquí y la de abajo en el retrato. Cruzar dos máscaras
+   en un solo elemento con mask-composite se comporta distinto en cada
+   navegador; anidarlas funciona en todos. */
+.mapb .mapb-marco-retrato {
+  position: absolute;
+  inset: 0 0 auto 0;
+  /* Dos tercios de la pantalla, no la pantalla entera. La foto es
+     cuadrada y el panel vertical: a pantalla completa, 'cover' recorta
+     tanto de ancho que parte por la mitad la cara del hijo. A esta altura
+     entran los tres y solo se pierde algo de fondo por los lados. */
+  height: 64%;
+  /* A sangre: se sale del padding lateral de la envoltura para llegar al
+     borde de la pantalla, como en la referencia. */
+  margin-inline: calc(-1 * clamp(1rem, 4.5vw, 1.75rem));
+  z-index: 0;
+  /* En el móvil esto solo suaviza el borde de la pantalla; en pantallas
+     anchas es lo que evita que la foto se lea como un rectángulo pegado
+     en mitad del negro. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+}
+.mapb .mapb-retrato {
+  position: absolute;
+  inset: 0;
+  background-image: var(--foto-familia);
+  background-size: cover;
+  background-position: 50% 40%;
+  /* Una sola capa de máscara. Cruzar dos con mask-composite se comporta
+     distinto en cada navegador, y con el vertical basta: el retrato
+     entra desde arriba y se deshace antes de llegar al texto. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0,0,0,0.45) 80%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0,0,0,0.45) 80%, transparent 100%);
+}
+
+
+/* Viñeta y fundido. Hacen tres cosas a la vez: apagan los bordes del
+   retrato —lo de los bordes difuminados—, tapan la franja de pizza del
+   fondo fijo, que aquí competiría con la familia, y le dan al texto una
+   base sobre la que se lee sin pelear. */
+.mapb .mapb-vista--historia::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* A ventana completa, no solo la columna: en pantallas anchas el fondo
+     de pizza quedaba encendido a los lados y hacía que el retrato se
+     leyera como un recorte pegado en mitad del negro. */
+  margin-inline: calc(50% - 50vw);
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(118% 76% at 50% 20%, transparent 38%, rgba(5, 4, 3, 0.6) 100%),
+    linear-gradient(to bottom,
+      transparent 10%,
+      rgba(5, 4, 3, 0.36) 38%,
+      rgba(5, 4, 3, 0.84) 60%,
+      rgba(5, 4, 3, 0.96) 76%,
+      var(--negro) 100%);
+}
+
+
+/* Y el texto por delante de las dos capas. */
+.mapb .mapb-vista--historia > .mapb-historia,
+.mapb .mapb-vista--historia > .mapb-pie { position: relative; z-index: 2; }
+.mapb .mapb-historia {
+  max-width: 24rem;
+  margin-inline: auto;
+  text-align: center;
+  text-shadow: 0 1px 14px rgba(5, 4, 3, 0.95), 0 1px 3px rgba(5, 4, 3, 0.85);
+}
+.mapb .mapb-historia .mapb-voz {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.0625rem, 4.6vw, 1.25rem);
+  line-height: 1.5;
+  color: var(--hueso);
+  text-wrap: balance;
+}
+.mapb .mapb-historia .mapb-voz--coro {
+  font-size: clamp(0.9375rem, 4.1vw, 1.125rem);
+  line-height: 1.62;
+}
+
+
+/* El dorado marca el giro de cada idea. Es el mismo recurso de la
+   referencia del cliente y lo que evita que el bloque se lea como un
+   muro de cursiva. */
+.mapb .mapb-historia em {
+  font-style: inherit;
+  color: var(--oro);
+}
+.mapb .mapb-historia .mapb-filete {
+  width: 2.75rem;
+  height: 1px;
+  margin: clamp(1.1rem, 4.5vw, 1.5rem) auto;
+  border: 0;
+  background: linear-gradient(to right, transparent, var(--oro), transparent);
+  opacity: 0.6;
+}
+.mapb .mapb-historia .mapb-apunte {
+  margin: clamp(1.25rem, 5vw, 1.75rem) 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(0.8125rem, 3.4vw, 0.875rem);
+  line-height: 1.68;
+  color: rgba(247, 243, 236, 0.78);
+  text-wrap: pretty;
+}
+.mapb .mapb-historia .mapb-firma {
+  margin: clamp(1.25rem, 5vw, 1.75rem) 0 0;
+  font-size: clamp(0.5625rem, 2.4vw, 0.625rem);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(247, 243, 236, 0.6);
+}
+
+
+/* ================================== pie ================================== */
+
+.mapb .mapb-pie {
+  margin-top: clamp(2rem, 8vw, 3rem);
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(5, 4, 3, 0.92), 0 1px 3px rgba(5, 4, 3, 0.8);
+}
+.mapb .mapb-pie .mapb-cierre {
+  max-width: 22rem;
+  margin: 0 auto;
+  font-size: clamp(0.625rem, 2.7vw, 0.6875rem);
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: rgba(247, 243, 236, 0.5);
+}
+.mapb .mapb-reclamos {
+  /* Es un enlace legal, pero se toca igual: 44 px de alto mínimo. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin-top: clamp(0.75rem, 3vw, 1.25rem);
+  padding-inline: 1rem;
+  color: rgba(247, 243, 236, 0.62);
+  text-decoration: none;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 0.25s ease;
+}
+.mapb .mapb-reclamos svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.mapb .mapb-reclamos:active { color: var(--hueso); }
+@media (hover: hover) and (pointer: fine) {
+.mapb .mapb-reclamos:hover { color: var(--hueso); }
+}
+
+
+/* ============================== entrada ============================== */
+
+@media (prefers-reduced-motion: no-preference) {
+.mapb .mapb-entra {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    animation: mapb-aparecer 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+@keyframes mapb-aparecer { to { opacity: 1; transform: none; } }
+}
+
+
+/* La segunda vista no entra al cargar, sino cuando asoma: es lo que
+   hace que bajar se sienta como descubrir algo. La clase .mapb-js la pone el
+   guion sobre el propio componente, así que sin JavaScript el contenido
+   se ve igual en vez de quedarse invisible para siempre. */
+@media (prefers-reduced-motion: no-preference) {
+.mapb.mapb-js .mapb-asoma {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--d, 0ms);
+  }
+.mapb.mapb-js .mapb-asoma.mapb-dentro { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+.mapb .mapb-brasas,
+.mapb .mapb-fondo::before { display: none; }
+.mapb .horno { animation: none; transform: scale(1.08); }
+.mapb *,
+.mapb *::before,
+.mapb *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+
+/* ============================== pantallas anchas ==============================
+   Sigue siendo una página de bio, así que la columna no crece: lo que
+   crece es el aire alrededor y el tamaño de los logotipos. */
+
+@media (min-width: 48rem) {
+.mapb { --alto-tarjeta: 6.5rem; }
+
+  /* La columna es estrecha y el negro de alrededor mucho: el borde del
+     retrato se nota más que en el móvil y necesita más recorrido. */
+  .mapb .mapb-marco-retrato {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 20%, #000 80%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, #000 20%, #000 80%, transparent 100%);
+  }
+
+  /* Sin padding vertical: el aire lo ponen las vistas. El que había aquí
+     sobresalía por debajo del último panel y dejaba asomar una franja del
+     fondo de pizza bajo la historia. */
+  .mapb .mapb-envoltura { max-width: 31rem; }
+}
+
+
+/* Móvil apaisado y pantallas bajas: nada de scroll innecesario. */
+@media (max-height: 44rem) and (orientation: landscape) {
+.mapb { --alto-tarjeta: 4.5rem; }
+.mapb .mapb-vista { min-height: 0; padding-block: 1.5rem; scroll-snap-align: none; }
+.mapb .mapb-senuelo { display: none; }
+.mapb .mapb-envoltura { max-width: 34rem; }
+
+  /* Apaisado: los cuatro botones en fila, que de ancho va sobrado. */
+  .mapb .mapb-enlaces { grid-template-columns: repeat(4, 1fr); }
+.mapb .mapb-tarjeta { aspect-ratio: 4 / 3; }
+.mapb .mapb-cabecera { margin-bottom: 1rem; }
+.mapb .mapb-cabecera .mapb-firma-alta { width: 4.5rem; }
+.mapb .mapb-horario { margin-top: 1rem; }
+.mapb .mapb-marco-retrato { height: 72%; }
+.mapb .mapb-retrato { background-position: 50% 34%; }
+.mapb .cintillo { margin-bottom: 1rem; }
+.mapb .mapb-cara { padding-block: 0.5rem; }
+.mapb .logo-ma { width: 2.75rem; }
+.mapb .mapb-logo-rappi { width: 5rem; }
+.mapb .mapb-logo-pedidosya { width: 5.5rem; }
+.mapb .mapb-logo-icono { width: 2.25rem; }
+.mapb .mapb-enlaces { gap: 0.625rem; }
+.mapb .mapb-pie { padding-top: 1rem; }
+.mapb .mapb-historia { max-width: 30rem; }
+.mapb .mapb-historia .mapb-voz { font-size: 1rem; line-height: 1.45; }
+.mapb .mapb-historia .mapb-filete { margin: 0.75rem auto; }
+.mapb .mapb-historia .mapb-apunte { margin-top: 0.9rem; }
+.mapb .mapb-historia .mapb-firma { margin-top: 0.9rem; }
+.mapb .mapb-pie { margin-top: 1.25rem; }
+}
+
+
+/* Teléfonos muy estrechos (iPhone SE): el cintillo se parte en dos. */
+@media (max-width: 22.5rem) {
+.mapb .cintillo { flex-wrap: wrap; gap: 0.4rem 0.5rem; }
+.mapb .cintillo img { order: -1; width: 2.25rem; }
+.mapb .cintillo .punto { display: none; }
+.mapb .cintillo span { font-size: 0.5rem; letter-spacing: 0.18em; }
+}
+/* ===================================================================
+   Piezas que solo existen en la versión de WordPress
+   =================================================================== */
+
+/* Botón apagado. No es un enlace con el clic anulado: es un <span> sin
+   href, así que no hay nada que pulsar ni con el dedo, ni con el teclado,
+   ni con un lector de pantalla. Aquí solo se le quita el oro. */
+.mapb .mapb-tarjeta--apagada {
+  --mapb-luz: 0;
+  cursor: default;
+  background:
+    linear-gradient(rgba(20, 19, 18, 0.92), rgba(20, 19, 18, 0.92)) padding-box,
+    linear-gradient(rgba(140, 140, 140, 0.38), rgba(140, 140, 140, 0.22)) border-box;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  animation: none;
+}
+
+/* Sin reflejo que recorra el borde ni barras de luz: es lo que distingue
+   de un vistazo el botón vivo del que todavía no lo está. */
+.mapb .mapb-tarjeta--apagada::before { display: none; }
+
+.mapb .mapb-tarjeta--apagada .mapb-cara { opacity: 0.42; filter: grayscale(1); }
+
+.mapb .mapb-etiqueta {
+  position: absolute;
+  inset: auto 0 clamp(0.5rem, 2.5vw, 0.75rem) 0;
+  z-index: 3;
+  text-align: center;
+  font-size: clamp(0.5rem, 2.2vw, 0.5625rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(247, 243, 236, 0.72);
+}
+
+/* Cuando un botón no lleva icono ni imagen, queda su nombre. */
+.mapb .mapb-rotulo-boton {
+  font-size: clamp(0.6875rem, 3vw, 0.8125rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--hueso);
+}
+
+/* Imagen propia del botón, subida a la biblioteca de medios. Se limita por
+   los dos lados porque no sabemos qué proporción tendrá. */
+.mapb .mapb-logo-imagen {
+  width: min(76%, 9rem);
+  height: min(62%, 4.5rem);
+  background-size: contain;
+}
+
+/* Aviso para quien edita cuando el shortcode no encuentra perfil. Al
+   visitante no se le enseña nada. */
+.mapb-aviso {
+  margin: 1em 0;
+  padding: 1em 1.2em;
+  border-left: 4px solid #d63638;
+  background: #fcf0f1;
+  color: #3c434a;
+  font-family: system-ui, sans-serif;
+}

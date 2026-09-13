@@ -38,6 +38,40 @@ WhatsApp usa el formato `https://wa.me/51XXXXXXXXX` (número sin `+` ni espacios
   para móvil apaisado. Objetivos táctiles de 44 px o más.
 - **`prefers-reduced-motion`**: apaga brasas, halos y entradas.
 
+## El plugin de WordPress
+
+En `wordpress/mapizza-bio/` está la misma página convertida en plugin, con todo
+el contenido administrable desde el escritorio. `wordpress/mapizza-bio.zip` es
+lo que se sube en *Plugins → Añadir nuevo → Subir plugin*.
+
+Se inserta con `[mapizza_bio]` en cualquier página; `[mapizza_bio id="12"]`
+elige un perfil concreto. Cada perfil es una entrada de un tipo de contenido
+propio, así que mañana puede haber varios sin tocar código.
+
+Tres decisiones que sostienen lo demás:
+
+1. **El tipo de contenido se registra sin URL pública** (`public => false`,
+   `rewrite => false`, `query_var => false`). El perfil es material para el
+   shortcode, no una página del sitio: el plugin no registra reescrituras ni
+   engancha `the_content`, `template_redirect` o `template_include`, así que no
+   puede capturar ninguna ruta ni competir con las páginas reales.
+2. **Los estilos cuelgan todos de `.mapb`** y las clases llevan prefijo
+   `mapb-`. Las reglas de `html`, `body` y `*` que tenía la página suelta
+   habrían cambiado la tipografía y el fondo de todo el sitio; ahora viven en
+   el propio componente. Comprobado en los dos sentidos con un tema hostil a
+   propósito.
+3. **Las capas de fondo pasan de `position: fixed` a `sticky`** dentro del
+   componente. Hacen lo mismo mientras pasas por delante, pero no pueden
+   salirse ni taparle nada al resto de la página.
+
+`.mapb` lleva `overflow-x: clip` y no `hidden`: `hidden` crearía un contenedor
+de desplazamiento y dejaría de funcionar el `sticky` del fondo. `clip` recorta
+los anchos a sangre sin sacar barra horizontal en el sitio.
+
+Un botón apagado se pinta como `<span>` sin `href`, no como un enlace con el
+clic anulado: así no responde ni al dedo, ni al teclado, ni a un lector de
+pantalla.
+
 ## Cómo se construye
 
 `index.html` no se edita a mano: sale de `herramientas/plantilla.html` más los
