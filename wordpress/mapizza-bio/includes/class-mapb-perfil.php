@@ -67,6 +67,8 @@ class MAPB_Perfil {
 		return array(
 			'_mapb_logo'            => 'medio',
 			'_mapb_lema'            => 'texto',
+			'_mapb_lema_icono'      => 'medio',
+			'_mapb_lema_2'          => 'texto',
 			'_mapb_horario_rango'   => 'texto',
 			'_mapb_horario_dias'    => 'texto',
 			'_mapb_horario_datos'   => 'texto',
@@ -90,7 +92,8 @@ class MAPB_Perfil {
 	/** Lo que trae un perfil recién creado: la bio de MA PIZZA tal cual está hoy. */
 	public static function predeterminados() {
 		return array(
-			'_mapb_lema'            => 'Cocinar con amor, alimenta el corazón',
+			'_mapb_lema'            => 'Cocinar con amor',
+			'_mapb_lema_2'          => 'Alimenta el corazón',
 			'_mapb_horario_rango'   => '12:00 – 23:00',
 			'_mapb_horario_dias'    => 'Lunes a domingo',
 			'_mapb_horario_datos'   => '33 cm · 6 slices · masa delgada',

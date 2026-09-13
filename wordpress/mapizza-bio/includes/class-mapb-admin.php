@@ -139,7 +139,9 @@ class MAPB_Admin {
 
 	public static function caja_marca( $post ) {
 		self::medio( $post, '_mapb_logo', __( 'Logotipo', 'mapizza-bio' ), __( 'Se muestra arriba del todo. Un PNG con fondo transparente funciona mejor.', 'mapizza-bio' ) );
-		self::texto( $post, '_mapb_lema', __( 'Lema', 'mapizza-bio' ), 'Cocinar con amor, alimenta el corazón' );
+		self::texto( $post, '_mapb_lema', __( 'Lema — primera parte', 'mapizza-bio' ), 'Cocinar con amor' );
+		self::medio( $post, '_mapb_lema_icono', __( 'Sello del lema', 'mapizza-bio' ), __( 'Va entre las dos partes del lema. Si lo dejas vacío, el lema sale como una sola línea seguida.', 'mapizza-bio' ) );
+		self::texto( $post, '_mapb_lema_2', __( 'Lema — segunda parte', 'mapizza-bio' ), 'Alimenta el corazón' );
 	}
 
 	public static function caja_horario( $post ) {

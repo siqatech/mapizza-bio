@@ -312,6 +312,11 @@
    los botones ya no necesitan repetir el logotipo en cada uno. */
 
 .mapb .mapb-cabecera {
+  /* El lema cabe o no según el ancho del CONTENEDOR donde se pegue el
+     shortcode, no según el de la pantalla: una página con relleno lateral
+     deja bastante menos sitio. Midiendo el contenedor, la decisión es
+     exacta en cualquier plantilla. */
+  container-type: inline-size;
   text-align: center;
   margin-bottom: clamp(1.75rem, 7vw, 2.75rem);
 }
@@ -322,10 +327,20 @@
   background-image: var(--ma-firma);
   filter: drop-shadow(0 2px 26px rgba(232, 184, 102, 0.3));
 }
+/* El lema puede llevar un sello en medio, así que es una fila, no una línea
+   de texto a secas. Con una sola parte y sin sello se ve exactamente igual
+   que antes. */
 .mapb .mapb-cabecera .mapb-lema {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(0.5rem, 2.8vw, 1.1rem);
   margin: clamp(1rem, 4vw, 1.5rem) 0 0;
   font-size: clamp(0.5rem, 2.3vw, 0.625rem);
-  letter-spacing: 0.24em;
+  /* 0.24em se pasaba de largo por unos diez píxeles justo en los anchos de
+     móvil más comunes, y partía la línea en dos. */
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(247, 243, 236, 0.62);
   text-shadow: 0 1px 10px rgba(5, 4, 3, 0.9);
@@ -870,4 +885,25 @@
   background: #fcf0f1;
   color: #3c434a;
   font-family: system-ui, sans-serif;
+}
+
+
+/* ------------------------------- sello del lema ------------------------- */
+
+.mapb .mapb-lema-sello {
+  flex: 0 0 auto;
+  /* Se mide por el alto, que es lo que tiene que casar con la línea de
+     texto; el ancho lo pone la proporción del propio archivo. */
+  height: clamp(1.5rem, 6.5vw, 2.25rem);
+  width: auto;
+  background: center / contain no-repeat;
+  filter: drop-shadow(0 0 12px rgba(232, 184, 102, 0.35));
+}
+
+/* Cuando de verdad no cabe en una línea, el sello sube solo a la suya en vez
+   de quedarse colgando al final de un renglón. Así la partida se lee como
+   una decisión y no como un descuadre. */
+@container (max-width: 21rem) {
+  .mapb .mapb-cabecera .mapb-lema { gap: 0.4rem 0.7rem; }
+  .mapb .mapb-lema-sello { order: -1; flex-basis: 100%; height: 2rem; }
 }

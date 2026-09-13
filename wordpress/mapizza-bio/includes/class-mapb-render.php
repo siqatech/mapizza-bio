@@ -107,6 +107,13 @@ class MAPB_Render {
 	 * buscando la imagen dentro de assets/css/ y desapareciendo sin error.
 	 */
 	private static function url_medio( $id, $tamano = 'full' ) {
+		$src = self::medio( $id, $tamano );
+
+		return $src ? $src[0] : '';
+	}
+
+	/** Devuelve array( url, ancho, alto ) o cadena vacía. */
+	private static function medio( $id, $tamano = 'full' ) {
 		$id = (int) $id;
 
 		if ( ! $id ) {
@@ -115,7 +122,13 @@ class MAPB_Render {
 
 		$src = wp_get_attachment_image_src( $id, $tamano );
 
-		return $src ? esc_url_raw( $src[0] ) : '';
+		if ( ! $src ) {
+			return '';
+		}
+
+		$src[0] = esc_url_raw( $src[0] );
+
+		return $src;
 	}
 
 	/** Fondo: vídeo si lo hay, y si no la imagen, que ya va en la variable. */
@@ -163,11 +176,47 @@ class MAPB_Render {
 				. esc_attr( get_the_title( $datos['id'] ) ) . '"></i>';
 		}
 
-		if ( $datos['lema'] ) {
-			$html .= '<p class="mapb-lema">' . esc_html( $datos['lema'] ) . '</p>';
-		}
+		$html .= self::lema( $datos );
 
 		return $html . '</header>';
+	}
+
+	/**
+	 * El lema puede ir partido en dos con un sello en medio, como en la
+	 * referencia de la marca. Sin sello se comporta como una línea normal,
+	 * así que los perfiles que ya existían siguen viéndose igual.
+	 */
+	private static function lema( $datos ) {
+		$izquierda = $datos['lema'];
+		$derecha   = isset( $datos['lema_2'] ) ? $datos['lema_2'] : '';
+		$sello     = self::medio( isset( $datos['lema_icono'] ) ? $datos['lema_icono'] : 0, 'medium' );
+
+		if ( ! $izquierda && ! $derecha && ! $sello ) {
+			return '';
+		}
+
+		$html = '<p class="mapb-lema">';
+
+		if ( $izquierda ) {
+			$html .= '<span>' . esc_html( $izquierda ) . '</span>';
+		}
+
+		if ( $sello ) {
+			// La proporción se saca del propio archivo: así el sello reserva su
+			// sitio antes de que cargue la imagen y la línea no pega un salto.
+			$html .= sprintf(
+				'<i class="mapb-lema-sello" aria-hidden="true" style="background-image:url(%s);aspect-ratio:%d/%d"></i>',
+				esc_url( $sello[0] ),
+				max( 1, (int) $sello[1] ),
+				max( 1, (int) $sello[2] )
+			);
+		}
+
+		if ( $derecha ) {
+			$html .= '<span>' . esc_html( $derecha ) . '</span>';
+		}
+
+		return $html . '</p>';
 	}
 
 	private static function botones( $datos ) {

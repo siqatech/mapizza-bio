@@ -31,6 +31,16 @@ Cada perfil es una entrada del tipo "Enlaces de bio", así que puede haber
 tantos como haga falta —uno por marca, por campaña o por idioma— y cada página
 llama al suyo con `[mapizza_bio id="12"]`.
 
+= El lema =
+
+Puede ir partido en dos con un sello en medio —"Cocinar con amor · MA ·
+Alimenta el corazón"— rellenando las tres casillas de la caja **Marca**. Si se
+deja el sello vacío, el lema sale como una sola línea seguida.
+
+Cuando el ancho no da para una línea, el sello sube solo a la suya. La decisión
+se toma midiendo el contenedor donde esté pegado el shortcode, no la pantalla:
+una página con relleno lateral deja bastante menos sitio que una en blanco.
+
 = Botones =
 
 Se reordenan arrastrando. Cada uno puede apagarse: entonces sale en gris, sin
