@@ -39,13 +39,22 @@
 	border-radius: 4px;
 }
 
-/* Un botón apagado se ve apagado también aquí: si en la página sale en gris,
-   en el panel tiene que avisar de lo mismo de un vistazo. */
-.mapb-fila--apagada {
+/* Cada estado se reconoce de un vistazo, sin abrir el selector: si en la
+   página sale en gris o no sale, aquí tiene que avisar de lo mismo. */
+.mapb-fila--proximamente {
+	border-left-color: #dba617;
+	background: #fcf9e8;
+}
+.mapb-fila--proximamente .mapb-campos { opacity: .7; }
+
+.mapb-fila--oculto {
 	border-left-color: #8c8f94;
+	border-style: dashed;
 	background: #f6f7f7;
 }
-.mapb-fila--apagada .mapb-campos { opacity: .6; }
+.mapb-fila--oculto .mapb-campos { opacity: .45; }
+
+.mapb-estado select { max-width: 15rem; }
 
 .mapb-asa {
 	cursor: grab;

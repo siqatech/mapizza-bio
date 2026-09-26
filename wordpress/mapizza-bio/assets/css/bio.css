@@ -36,6 +36,7 @@
 
   /* Alto de la tarjeta: manda en todo el ritmo vertical de la página. */
   --alto-tarjeta: clamp(5.25rem, 19vw, 6.75rem);
+  --hueco-enlaces: clamp(0.625rem, 2.8vw, 1rem);
   --alto-vista: 100svh;
 
   /* Antes esto estaba en html y en body. Ahí fuera le habría cambiado la
@@ -357,7 +358,17 @@
      pantalla de alto y no dejaban sitio ni al horario ni a la llamada. */
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(0.625rem, 2.8vw, 1rem);
+  gap: var(--hueco-enlaces);
+}
+
+/* Con un número impar de botones —y ocultar uno lo deja impar— el último se
+   queda solo en su fila. Centrado se lee como una decisión; pegado a la
+   izquierda, como un hueco que falta por llenar. Conserva el ancho de una
+   columna para no deformarse. */
+.mapb .mapb-enlaces > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  width: calc(50% - (var(--hueco-enlaces) / 2));
+  justify-self: center;
 }
 
 

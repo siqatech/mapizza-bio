@@ -10,6 +10,15 @@ class MAPB_Admin {
 
 	const NONCE = 'mapb_guardar_perfil';
 
+	/** Cómo se llama cada estado en el panel. */
+	private static function estados() {
+		return array(
+			'activo'       => __( 'Visible y con enlace', 'mapizza-bio' ),
+			'proximamente' => __( 'Visible en gris — Próximamente', 'mapizza-bio' ),
+			'oculto'       => __( 'No mostrar', 'mapizza-bio' ),
+		);
+	}
+
 	public static function init() {
 		add_action( 'add_meta_boxes_' . MAPB_Perfil::TIPO, array( __CLASS__, 'cajas' ) );
 		add_action( 'edit_form_after_title', array( __CLASS__, 'nonce' ) );
@@ -44,17 +53,31 @@ class MAPB_Admin {
 		if ( 'mapb_botones' === $columna ) {
 			$botones = get_post_meta( $post_id, '_mapb_botones', true );
 			$botones = is_array( $botones ) ? $botones : array();
-			$activos = count( array_filter( $botones, function ( $b ) {
-				return ! empty( $b['activo'] );
-			} ) );
 
-			printf(
-				/* translators: 1: botones activos, 2: total */
-				esc_html__( '%1$d de %2$d activos', 'mapizza-bio' ),
-				(int) $activos,
-				count( $botones )
+			$cuenta = array_count_values(
+				array_map( array( 'MAPB_Perfil', 'estado' ), $botones )
 			);
+
+			$partes = array();
+			foreach ( self::estados() as $clave => $nombre ) {
+				if ( ! empty( $cuenta[ $clave ] ) ) {
+					$partes[] = sprintf( '%d %s', (int) $cuenta[ $clave ], self::corto( $clave ) );
+				}
+			}
+
+			echo esc_html( $partes ? implode( ' · ', $partes ) : __( 'sin botones', 'mapizza-bio' ) );
 		}
+	}
+
+	/** Nombre corto del estado, para el listado. */
+	private static function corto( $estado ) {
+		$cortos = array(
+			'activo'       => __( 'activos', 'mapizza-bio' ),
+			'proximamente' => __( 'en gris', 'mapizza-bio' ),
+			'oculto'       => __( 'ocultos', 'mapizza-bio' ),
+		);
+
+		return isset( $cortos[ $estado ] ) ? $cortos[ $estado ] : $estado;
 	}
 
 	public static function recursos() {
@@ -84,7 +107,7 @@ class MAPB_Admin {
 				'usar'     => __( 'Usar esta imagen', 'mapizza-bio' ),
 				'elegirV'  => __( 'Elegir vídeo', 'mapizza-bio' ),
 				'usarV'    => __( 'Usar este vídeo', 'mapizza-bio' ),
-				'borrar'   => __( '¿Quitar este botón?', 'mapizza-bio' ),
+				'borrar'   => __( '¿Borrar este botón? Se pierden su enlace y su icono. Si solo quieres que no aparezca, usa "No mostrar".', 'mapizza-bio' ),
 				'copiado'  => __( 'Copiado', 'mapizza-bio' ),
 			)
 		);
@@ -178,7 +201,7 @@ class MAPB_Admin {
 		$botones = is_array( $botones ) ? array_values( $botones ) : array();
 		?>
 		<p class="description">
-			<?php esc_html_e( 'Arrastra por el asa para cambiar el orden. Un botón apagado se ve en gris, no se puede pulsar y muestra el aviso de "Próximamente".', 'mapizza-bio' ); ?>
+			<?php esc_html_e( 'Arrastra por el asa para cambiar el orden. "Visible en gris" deja el botón a la vista sin enlace y con el aviso; "No mostrar" lo saca de la página pero conserva aquí su enlace y su icono, listos para cuando vuelva. Borrar sí lo pierde.', 'mapizza-bio' ); ?>
 		</p>
 
 		<div class="mapb-lista" id="mapb-lista">
@@ -204,14 +227,15 @@ class MAPB_Admin {
 	private static function fila_boton( $i, $boton ) {
 		$boton = wp_parse_args(
 			$boton,
-			array( 'titulo' => '', 'url' => '', 'icono' => '', 'imagen' => 0, 'activo' => 1 )
+			array( 'titulo' => '', 'url' => '', 'icono' => '', 'imagen' => 0 )
 		);
 
+		$estado    = MAPB_Perfil::estado( $boton );
 		$base      = 'mapb_botones[' . $i . ']';
 		$imagen_id = (int) $boton['imagen'];
 		$vista     = $imagen_id ? wp_get_attachment_image_url( $imagen_id, 'thumbnail' ) : '';
 		?>
-		<div class="mapb-fila<?php echo empty( $boton['activo'] ) ? ' mapb-fila--apagada' : ''; ?>">
+		<div class="mapb-fila mapb-fila--<?php echo esc_attr( $estado ); ?>">
 			<span class="mapb-asa dashicons dashicons-menu" aria-hidden="true"></span>
 
 			<div class="mapb-campos">
@@ -259,13 +283,18 @@ class MAPB_Admin {
 			</div>
 
 			<div class="mapb-acciones">
-				<label class="mapb-interruptor">
-					<input type="checkbox" name="<?php echo esc_attr( $base ); ?>[activo]" value="1"
-						<?php checked( ! empty( $boton['activo'] ) ); ?> />
-					<span><?php esc_html_e( 'Activo', 'mapizza-bio' ); ?></span>
+				<label class="mapb-estado">
+					<span class="screen-reader-text"><?php esc_html_e( 'Estado del botón', 'mapizza-bio' ); ?></span>
+					<select name="<?php echo esc_attr( $base ); ?>[estado]">
+						<?php foreach ( self::estados() as $clave => $nombre ) : ?>
+							<option value="<?php echo esc_attr( $clave ); ?>" <?php selected( $estado, $clave ); ?>>
+								<?php echo esc_html( $nombre ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
 				</label>
 				<button type="button" class="button-link delete mapb-quitar">
-					<?php esc_html_e( 'Quitar', 'mapizza-bio' ); ?>
+					<?php esc_html_e( 'Borrar', 'mapizza-bio' ); ?>
 				</button>
 			</div>
 		</div>
@@ -413,14 +442,15 @@ class MAPB_Admin {
 				continue;
 			}
 
-			$icono = sanitize_key( isset( $bruto['icono'] ) ? $bruto['icono'] : '' );
+			$icono  = sanitize_key( isset( $bruto['icono'] ) ? $bruto['icono'] : '' );
+			$estado = sanitize_key( isset( $bruto['estado'] ) ? $bruto['estado'] : '' );
 
 			$limpios[] = array(
 				'titulo' => $titulo,
 				'url'    => $url,
 				'icono'  => array_key_exists( $icono, MAPB_Iconos::catalogo() ) ? $icono : '',
 				'imagen' => $imagen,
-				'activo' => empty( $bruto['activo'] ) ? 0 : 1,
+				'estado' => in_array( $estado, MAPB_Perfil::ESTADOS, true ) ? $estado : 'activo',
 			);
 		}
 

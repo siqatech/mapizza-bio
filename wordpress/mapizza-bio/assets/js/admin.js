@@ -88,9 +88,11 @@
 		}
 	} );
 
-	/* Que se vea apagada en cuanto se desmarca, sin tener que guardar. */
-	$( document ).on( 'change', '.mapb-fila .mapb-interruptor input', function () {
-		$( this ).closest( '.mapb-fila' ).toggleClass( 'mapb-fila--apagada', ! this.checked );
+	/* Que la fila cambie de aspecto en cuanto eliges, sin tener que guardar. */
+	$( document ).on( 'change', '.mapb-fila .mapb-estado select', function () {
+		$( this ).closest( '.mapb-fila' )
+			.removeClass( 'mapb-fila--activo mapb-fila--proximamente mapb-fila--oculto' )
+			.addClass( 'mapb-fila--' + this.value );
 	} );
 
 	/* ------------------------------------------------ copiar el shortcode */

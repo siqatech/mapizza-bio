@@ -80,9 +80,11 @@ ese filtro —lo que ocurre dentro del widget de texto de Elementor— acaba met
 `<p>` y `</p>` sueltos dentro del componente. Esos párrafos vacíos heredan el
 margen del tema y salen como franjas en blanco.
 
-Un botón apagado se pinta como `<span>` sin `href`, no como un enlace con el
-clic anulado: así no responde ni al dedo, ni al teclado, ni a un lector de
-pantalla.
+Cada botón tiene tres estados: visible con enlace, visible en gris con el aviso
+de «Próximamente», y no mostrar. El de «en gris» se pinta como `<span>` sin
+`href`, no como un enlace con el clic anulado: así no responde ni al dedo, ni al
+teclado, ni a un lector de pantalla. El oculto no llega al HTML —no está
+escondido con CSS— pero conserva su enlace y su icono en el panel.
 
 ## Cómo se construye
 

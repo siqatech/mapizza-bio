@@ -14,6 +14,25 @@ class MAPB_Perfil {
 
 	const TIPO = 'mapb_perfil';
 
+	/** Los tres estados de un botón. */
+	const ESTADOS = array( 'activo', 'proximamente', 'oculto' );
+
+	/**
+	 * Estado de un botón, aguantando los perfiles guardados antes de que
+	 * existiera el tercero: entonces solo había un interruptor, y apagado
+	 * significaba lo que hoy es "próximamente".
+	 */
+	public static function estado( $boton ) {
+		if ( ! empty( $boton['estado'] ) ) {
+			$estado = sanitize_key( $boton['estado'] );
+			if ( in_array( $estado, self::ESTADOS, true ) ) {
+				return $estado;
+			}
+		}
+
+		return empty( $boton['activo'] ) ? 'proximamente' : 'activo';
+	}
+
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'registrar_tipo' ) );
 	}
@@ -112,28 +131,28 @@ class MAPB_Perfil {
 					'url'    => 'https://www.rappi.com.pe/restaurantes/108052-ma-pizza',
 					'icono'  => 'rappi',
 					'imagen' => 0,
-					'activo' => 1,
+					'estado' => 'activo',
 				),
 				array(
 					'titulo' => 'PedidosYa',
 					'url'    => 'https://www.pedidosya.com.pe/restaurantes/lima/ma-pizza-surquillo-85785ef5-3ee0-4264-8570-6dda9b44dc6e-menu',
 					'icono'  => 'pedidosya',
 					'imagen' => 0,
-					'activo' => 1,
+					'estado' => 'activo',
 				),
 				array(
 					'titulo' => 'WhatsApp',
 					'url'    => 'https://wa.me/51982000004',
 					'icono'  => 'whatsapp',
 					'imagen' => 0,
-					'activo' => 1,
+					'estado' => 'activo',
 				),
 				array(
 					'titulo' => 'Instagram',
 					'url'    => 'https://www.instagram.com/mapizza.pe/',
 					'icono'  => 'instagram',
 					'imagen' => 0,
-					'activo' => 1,
+					'estado' => 'activo',
 				),
 			),
 		);
@@ -149,7 +168,13 @@ class MAPB_Perfil {
 		}
 
 		$botones = get_post_meta( $id, '_mapb_botones', true );
-		$datos['botones'] = is_array( $botones ) ? array_values( $botones ) : array();
+		$botones = is_array( $botones ) ? array_values( $botones ) : array();
+
+		foreach ( $botones as $i => $boton ) {
+			$botones[ $i ]['estado'] = self::estado( $boton );
+		}
+
+		$datos['botones'] = $botones;
 
 		return $datos;
 	}

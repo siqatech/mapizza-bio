@@ -220,7 +220,17 @@ class MAPB_Render {
 	}
 
 	private static function botones( $datos ) {
-		if ( empty( $datos['botones'] ) ) {
+		// Los ocultos no se pintan: no llegan al HTML, así que no están ni
+		// escondidos con CSS. El botón sigue guardado con su enlace y su
+		// icono, listo para volver cuando toque.
+		$visibles = array_filter(
+			(array) $datos['botones'],
+			function ( $boton ) {
+				return 'oculto' !== MAPB_Perfil::estado( $boton );
+			}
+		);
+
+		if ( ! $visibles ) {
 			return '';
 		}
 
@@ -229,9 +239,9 @@ class MAPB_Render {
 		$fase         = 0;
 		$html         = '<ul class="mapb-enlaces">';
 
-		foreach ( $datos['botones'] as $boton ) {
+		foreach ( $visibles as $boton ) {
 			$titulo = isset( $boton['titulo'] ) ? $boton['titulo'] : '';
-			$activo = ! empty( $boton['activo'] ) && ! empty( $boton['url'] );
+			$activo = 'activo' === MAPB_Perfil::estado( $boton ) && ! empty( $boton['url'] );
 			$dentro = self::cara_boton( $boton, $titulo, $activo );
 
 			$html .= '<li class="mapb-entra" style="--d:' . (int) $retardo . 'ms">';

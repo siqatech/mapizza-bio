@@ -43,10 +43,18 @@ una página con relleno lateral deja bastante menos sitio que una en blanco.
 
 = Botones =
 
-Se reordenan arrastrando. Cada uno puede apagarse: entonces sale en gris, sin
-enlace y con el aviso de "Próximamente". Apagado es un `<span>` sin `href`, no
-un enlace con el clic anulado, así que tampoco responde al teclado ni a un
-lector de pantalla.
+Se reordenan arrastrando. Cada uno tiene tres estados:
+
+* **Visible y con enlace** — como siempre.
+* **Visible en gris — Próximamente** — se ve, no se puede pulsar y lleva el
+  aviso. Es un `<span>` sin `href`, no un enlace con el clic anulado, así que
+  tampoco responde al teclado ni a un lector de pantalla.
+* **No mostrar** — no se pinta. No llega al HTML, no está escondido con CSS.
+  El botón sigue guardado aquí con su enlace y su icono, listo para cuando
+  vuelva; **borrar** sí los pierde.
+
+Con un número impar de botones, el último se centra en su fila en vez de
+quedarse pegado a la izquierda.
 
 Cada botón admite un icono del catálogo (Rappi, PedidosYa, WhatsApp, Instagram,
 teléfono, ubicación, carta, enlace) o una imagen propia de la biblioteca de
